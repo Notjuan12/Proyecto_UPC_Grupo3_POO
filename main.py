@@ -41,8 +41,49 @@ def f_mostrar_menu():
     )
 
 
+# funciones auxiliares
+def ver_nombre(n_evaluar):
+    no_valido = False
+    for letra in n_evaluar:
+        if letra.isdigit():
+            no_valido = True
+    return no_valido
+
+
+# funciones del menu
 def reg_usuario(usuarios):
-    pass
+    aux_man, dni = True, 0
+    try:
+        while aux_man:
+            dni = int(input("Ingrese el dni del cliente: "))
+            if dni not in usuarios and len(str(dni)) == 8:
+                print("DNI asignado correctamente")
+                aux_man = False
+            elif dni in usuarios:
+                print(f"Persona ya registrada con el dni:{dni}")
+                break
+            else:
+                print("DNI NO VALIDO")
+        aux_man = True
+        while aux_man:
+            nombre = input("Nombre(s) de la persona: ")
+            if ver_nombre(nombre):
+                print("Nombre no valido")
+            else:
+                aux_man = False
+                print("Nombre(s) asignado correctamente")
+        aux_man = True
+        while aux_man:
+            apellidos = input("Apellido(s) de la persona: ")
+            if ver_nombre(apellidos):
+                print("Apellido no valido")
+            else:
+                aux_man = False
+                print("Apellido(s) asignado correctamente")
+            usuarios.update({dni: [nombre.title(), apellidos.title(), []]})
+
+    except ValueError:
+        print("ERROR: VALOR INGRESADO NO VALIDO")
 
 
 def reg_libro(libros):
@@ -57,11 +98,20 @@ def reg_libro(libros):
                 aux_man = False
 
         nombre = input("Nombre del libro: ")
-        autor = input("Nombre del autor: ")
+
+        aux_man = True
+        while aux_man:
+            autor = input("Nombre del autor: ")
+            if ver_nombre(autor):
+                print("Nombre no valido")
+            else:
+                aux_man = False
+                print("Autor asignado correctamente")
         anio = int(input("año de publicacion: "))
-
-        libros.update({codigo: [nombre, autor, anio, "disponible", [0, 0, 0]]})
-
+        libros.update(
+            {codigo: [nombre.title(), autor.title(), anio, "disponible", [0, 0, 0]]}
+        )
+        print(f"Libro ID:{codigo} ha sido registrado con exito")
     except ValueError:
         print("ERROR: VALOR INGRESADO NO VALIDO")
 
@@ -112,7 +162,7 @@ def menu(libros, usuarios):
 def main():
     # datos generales / libros / usuarios
     # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"]]}
-    libros = {1: ["El gato", "Juan", 2025, "prestado", [0, 0, 0]]}
+    libros = {1: ["El Gato", "Juan", 2025, "prestado", [0, 0, 0]]}
     # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo]]}
     usuarios = {70479564: ["Juan", "Espinoza Ramos", [1]]}
     menu(libros, usuarios)
