@@ -85,7 +85,6 @@ def reg_usuario(usuarios):
     except ValueError:
         print("ERROR: VALOR INGRESADO NO VALIDO")
 
-
 def reg_libro(libros):
     aux_man, codigo = True, 0
     try:
@@ -112,6 +111,7 @@ def reg_libro(libros):
             {codigo: [nombre.title(), autor.title(), anio, "disponible", [0, 0, 0]]}
         )
         print(f"Libro ID:{codigo} ha sido registrado con exito")
+
     except ValueError:
         print("ERROR: VALOR INGRESADO NO VALIDO")
 
@@ -163,6 +163,7 @@ def main():
     # datos generales / libros / usuarios
     # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"]]}
     libros = {1: ["El Gato", "Juan", 2025, "prestado", [0, 0, 0]]}
+
     # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo]]}
     usuarios = {70479564: ["Juan", "Espinoza Ramos", [1]]}
     menu(libros, usuarios)
