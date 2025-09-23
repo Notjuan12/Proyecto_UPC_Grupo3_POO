@@ -100,6 +100,20 @@ def imprimir_libros(libros, min_ran=0, max_ran=0, modo=0):
         print(f"ERROR : FUERA DE RANGO , Rango Maximo :{len(libros)}")
 
 
+# suponiendo que cada mes tiene 30 dias
+def cal_f_entrega(actual):
+    dia, mes, annio = actual
+
+    dia += 7
+    if dia > 30:
+        mes += 1
+        dia %= 30
+    if mes > 12:
+        annio += 1
+        mes %= 12
+    return [dia, mes, annio]
+
+
 # funciones del menu
 def reg_usuario(usuarios):
     aux_man, dni = True, 0
@@ -202,6 +216,11 @@ def pres_lib(usuarios, libros):
                             print(f"        CODIGO:{usu_entrada}")
                             print("------------------------------------------")
                             print("Prestamo realizado con exito")
+                            dia, mes, annio = cal_f_entrega([dia, mes, annio])
+                            libros[usu_entrada][5][0] = dia
+                            libros[usu_entrada][5][1] = mes
+                            libros[usu_entrada][5][2] = annio
+                            print(f"fecha de devolucion estimada : {dia} {mes} {annio}")
                         else:
                             print("no disponible")
                     else:
@@ -217,8 +236,64 @@ def pres_lib(usuarios, libros):
         print("Error de ingreso de datos")
 
 
-def devol_lib():
-    pass
+def devol_lib(usuarios, libros):
+    aux_man = True
+    try:
+
+        while aux_man and len(usuarios) > 0:
+            print("Sistema de devolucion de libros:")
+            dni = int(
+                input("Ingrese el DNI de la persona que va a devolver (0 = salir): ")
+            )
+
+            if dni in usuarios:
+                if len(usuarios[dni][2]) == 0:
+                    print("Este usuario no tiene libros prestados.")
+                    continue
+
+                print("DNI válido.")
+                print(f"Libros prestados por {usuarios[dni][0]} {usuarios[dni][1]}:")
+
+                for cod in usuarios[dni][2]:
+                    print(
+                        f"  Código: {cod} | Título: {libros[cod][0]} | Autor: {libros[cod][1]}"
+                    )
+
+                usu_entrada = int(input("Ingrese el código del libro a devolver: "))
+
+                if usu_entrada in usuarios[dni][2]:
+                    print("Ingrese la fecha de devolución:")
+                    dia = int(input("Dia: "))
+                    mes = int(input("Mes: "))
+                    annio = int(input("Año: "))
+
+                    # actualizar libro
+                    libros[usu_entrada][3] = "disponible"
+                    libros[usu_entrada][4] = [0, 0, 0]  # limpiar fecha
+
+                    # eliminar de la lista del usuario
+                    usuarios[dni][2].remove(usu_entrada)
+
+                    print("-----------------Resumen-----------------")
+                    print(f"        {dia} / {mes} / {annio}")
+                    print(f"        DNI: {dni}")
+                    print(f"        NOMBRE: {usuarios[dni][0]}")
+                    print(f"        APELLIDOS: {usuarios[dni][1]}")
+                    print(f"        CODIGO DEVUELTO: {usu_entrada}")
+                    print(f"        TITULO: {libros[usu_entrada][0]}")
+                    print("------------------------------------------")
+                    print("Devolución realizada con éxito")
+
+                else:
+                    print("El código ingresado no pertenece a este usuario.")
+
+            elif dni == 0:
+                aux_man = False
+            else:
+                print("No hay DNI registrado")
+
+    except ValueError:
+        print("Error de ingreso de datos")
 
 
 def cal_penalidad():
@@ -258,7 +333,7 @@ def menu(libros, usuarios):
 def main():
     # datos generales / libros / usuarios
     # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"]]}
-    libros = {1: ["El Gato", "Juan", 2025, "disponible", [0, 0, 0]]}
+    libros = {1: ["El Gato", "Juan", 2025, "disponible", [0, 0, 0], [0, 0, 0]]}
     # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo]]}
     usuarios = {70479564: ["Juan", "Espinoza Ramos", []]}
     menu(libros, usuarios)
