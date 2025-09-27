@@ -100,50 +100,137 @@ def imprimir_libros(libros, min_ran=0, max_ran=0, modo=0):
         print(f"ERROR : FUERA DE RANGO , Rango Maximo :{len(libros)}")
 
 
+# funciones de tiempo
+def es_bisiesto(annio):
+    return (annio % 4 == 0 and annio % 100 != 0) or (annio % 400 == 0)
+
+
+def dias_en_mes(mes, annio):
+    if mes in (1, 3, 5, 7, 8, 10, 12):
+        return 31
+    elif mes in (4, 6, 9, 11):
+        return 30
+    elif mes == 2:
+        if es_bisiesto(annio):
+            return 29
+        else:
+            return 28
+    return 0
+
+
+def fecha_valida(dia, mes, annio):
+    bisiesto = es_bisiesto(annio)
+
+    if annio < 2025:
+        return False
+    if mes < 1 or mes > 12:
+        return False
+    elif annio >= 2025:
+        if mes in [1, 3, 5, 7, 8, 10, 12]:
+            if dia > 31 or dia < 0:
+                return False
+        elif mes in [4, 6, 9, 11]:
+            if dia > 30 or dia < 0:
+                return False
+        elif mes == 2:
+            if bisiesto:
+                if dia > 29 or 0 > dia:
+                    return False
+            elif dia > 28 or 0 > dia:
+                return False
+    return True
+
+
 # suponiendo que cada mes tiene 30 dias
 def cal_f_entrega(actual):
     dia, mes, annio = actual
-
+    bisiesto = (annio % 400 == 0) or (annio % 4 == 0 and annio % 100 != 0)
     dia += 7
-    if dia > 30:
-        mes += 1
-        dia %= 30
+    if mes in [1, 3, 5, 7, 8, 10, 12]:
+        if dia > 31:
+            mes += 1
+            dia %= 31
+    elif mes in [4, 6, 9, 11]:
+        if dia > 30:
+            mes += 1
+            dia %= 30
+    elif mes == 2:
+        if bisiesto:
+            if dia > 29:
+                mes += 1
+                dia %= 29
+        elif dia > 28:
+            mes += 1
+            dia %= 28
+
     if mes > 12:
         annio += 1
         mes %= 12
     return [dia, mes, annio]
 
 
+def f_penal_v(actual, limite):
+    resultado = False
+    dia, mes, annio = actual
+    dia_l, mes_l, annio_l = limite
+
+    if annio > annio_l:
+        resultado = True
+    elif annio == annio_l:
+        if mes > mes_l:
+            resultado = True
+        elif mes == mes_l:
+            if dia >= dia_l:
+                resultado = True
+
+    return resultado
+
+
+def cal_mora(fecha):
+    dia, mes, annio = fecha
+    total_dias = 0
+    for anio in range(1, annio):
+        if es_bisiesto(anio):
+            total_dias += 366
+        else:
+            total_dias += 365
+
+    for mes_ in range(1, mes):
+        total_dias += dias_en_mes(mes_, annio)
+
+    total_dias += dia
+
+    return total_dias
+
+
 # funciones del menu
 def reg_usuario(usuarios):
-    aux_man, dni = True, 0
+    dni = 0
     try:
-        while aux_man:
+        while True:
             dni = int(input("Ingrese el dni del cliente: "))
             if dni not in usuarios and len(str(dni)) == 8:
                 print("DNI asignado correctamente")
-                aux_man = False
+                break
             elif dni in usuarios:
                 print(f"Persona ya registrada con el dni:{dni}")
                 break
             else:
                 print("DNI NO VALIDO")
-        aux_man = True
-        while aux_man:
+        while True:
             nombre = input("Nombre(s) de la persona: ")
             if ver_nombre(nombre):
                 print("Nombre no valido")
             else:
-                aux_man = False
                 print("Nombre(s) asignado correctamente")
-        aux_man = True
-        while aux_man:
+                break
+        while True:
             apellidos = input("Apellido(s) de la persona: ")
             if ver_nombre(apellidos):
                 print("Apellido no valido")
             else:
-                aux_man = False
                 print("Apellido(s) asignado correctamente")
+                break
             usuarios.update({dni: [nombre.title(), apellidos.title(), []]})
 
     except ValueError:
@@ -151,26 +238,25 @@ def reg_usuario(usuarios):
 
 
 def reg_libro(libros):
-    aux_man, codigo = True, 0
+    codigo = 0
     try:
-        while aux_man:
+        while True:
             codigo = int(input("Ingrese el codigo del libro: "))
             if codigo in libros:
                 print("Codigo de libro ya asignado")
             else:
                 print("Codigo asignado correctamente")
-                aux_man = False
+                break
 
         nombre = input("Nombre del libro: ")
 
-        aux_man = True
-        while aux_man:
+        while True:
             autor = input("Nombre del autor: ")
             if ver_nombre(autor):
                 print("Nombre no valido")
             else:
-                aux_man = False
                 print("Autor asignado correctamente")
+                break
         anio = int(input("año de publicacion: "))
         libros.update(
             {codigo: [nombre.title(), autor.title(), anio, "disponible", [0, 0, 0]]}
@@ -181,9 +267,8 @@ def reg_libro(libros):
 
 
 def pres_lib(usuarios, libros):
-    aux_man = True
     try:
-        while aux_man and len(usuarios) > 0:
+        while True and len(usuarios) > 0:
             print("Sistema de prestamo de libros:")
             dni = int(input("Ingrese el dni (0 = salir): "))
             if dni in usuarios:
@@ -199,10 +284,15 @@ def pres_lib(usuarios, libros):
 
                     if usu_entrada in libros:
                         if libros[usu_entrada][3] == "disponible":
-                            print("Ingreso de fecha de prestamo:")
-                            dia = int(input("Dia: "))
-                            mes = int(input("Mes:"))
-                            annio = int(input("Año:"))
+                            while True:
+                                print("Ingreso de fecha de prestamo:")
+                                dia = int(input("Dia: "))
+                                mes = int(input("Mes:"))
+                                annio = int(input("Año:"))
+                                if fecha_valida(dia, mes, annio):
+                                    break
+                                else:
+                                    print("Fecha invalida")
                             libros[usu_entrada][4][0] = dia
                             libros[usu_entrada][4][1] = mes
                             libros[usu_entrada][4][2] = annio
@@ -228,7 +318,7 @@ def pres_lib(usuarios, libros):
                 else:
                     print("Maximo de 3 prestamos por persona")
             elif dni == 0:
-                aux_man = False
+                break
             else:
                 print("No hay dni registrado")
 
@@ -237,10 +327,9 @@ def pres_lib(usuarios, libros):
 
 
 def devol_lib(usuarios, libros):
-    aux_man = True
     try:
 
-        while aux_man and len(usuarios) > 0:
+        while True and len(usuarios) > 0:
             print("Sistema de devolucion de libros:")
             dni = int(
                 input("Ingrese el DNI de la persona que va a devolver (0 = salir): ")
@@ -262,11 +351,24 @@ def devol_lib(usuarios, libros):
                 usu_entrada = int(input("Ingrese el código del libro a devolver: "))
 
                 if usu_entrada in usuarios[dni][2]:
-                    print("Ingrese la fecha de devolución:")
-                    dia = int(input("Dia: "))
-                    mes = int(input("Mes: "))
-                    annio = int(input("Año: "))
-
+                    while True:
+                        print("Ingrese la fecha de devolución:")
+                        dia = int(input("Dia: "))
+                        mes = int(input("Mes: "))
+                        annio = int(input("Año: "))
+                        if fecha_valida(dia, mes, annio) and f_penal_v(
+                            [dia, mes, annio], libros[usu_entrada][5]
+                        ):
+                            break
+                        else:
+                            print("Fecha invalida")
+                    # fecha actual - fecha limite
+                    dias_mora = cal_mora(libros[usu_entrada][5]) - cal_mora(
+                        [dia, mes, annio]
+                    )
+                    mora = max(0, dias_mora)
+                    mora = mora * 10
+                    usuarios[dni][3] += mora
                     # actualizar libro
                     libros[usu_entrada][3] = "disponible"
                     libros[usu_entrada][4] = [0, 0, 0]  # limpiar fecha
@@ -288,7 +390,7 @@ def devol_lib(usuarios, libros):
                     print("El código ingresado no pertenece a este usuario.")
 
             elif dni == 0:
-                aux_man = False
+                break
             else:
                 print("No hay DNI registrado")
 
@@ -297,7 +399,51 @@ def devol_lib(usuarios, libros):
 
 
 def cal_penalidad():
-    pass
+    try:
+        while True:
+            print("Bienvenido al simulador de calculo de penalidad:")
+            user = input("Desea estimar la mora (S: salir /cualquier tecla :continuar)")
+            if user.upper() == "S":
+                break
+            while True:
+                print("Ingrese la fecha actual a tomar como inicio:")
+                dia_actual = int(input("Dia: "))
+                mes_actual = int(input("Mes: "))
+                annio_actual = int(input("Año: "))
+                if fecha_valida(dia_actual, mes_actual, annio_actual):
+                    break
+                else:
+                    print("Fecha no valida")
+            dia_actual, mes_actual, annio_actual = cal_f_entrega(
+                [dia_actual, mes_actual, annio_actual]
+            )
+            print("Recuerde : la mora empieza luego de 7 dias de inicio")
+            while True:
+                print("Ingrese la fecha de devolucion:")
+                dia_dev = int(input("Dia: "))
+                mes_dev = int(input("Mes: "))
+                annio_dev = int(input("Año: "))
+                if fecha_valida(dia_actual, mes_actual, annio_actual):
+                    break
+                else:
+                    print("Fecha no valida")
+
+            if f_penal_v(
+                [dia_actual, mes_actual, annio_actual], [dia_dev, mes_dev, annio_dev]
+            ):
+                print("No valido , volver a ingresar fechas")
+                continue
+            else:
+                dias_mora = cal_mora([dia_dev, mes_dev, annio_dev]) - cal_mora(
+                    [dia_actual, mes_actual, annio_actual]
+                )
+                mora = max(0, dias_mora)
+                mora = mora * 10
+                print(
+                    f"Mora estimada luego del {dia_actual}/ {mes_actual}/{annio_actual} de {dias_mora} dias es de : S/.{mora}"
+                )
+    except ValueError:
+        print("ERROR")
 
 
 def ver_reports():
@@ -305,8 +451,7 @@ def ver_reports():
 
 
 def menu(libros, usuarios):
-    Activo = True
-    while Activo:
+    while True:
         f_mostrar_menu()
         try:
             usu_entrada = int(input("Eleccion del usuario:  "))
@@ -318,14 +463,14 @@ def menu(libros, usuarios):
                 case 3:
                     pres_lib(usuarios, libros)
                 case 4:
-                    devol_lib()
+                    devol_lib(usuarios, libros)
                 case 5:
                     cal_penalidad()
                 case 6:
                     ver_reports()
                 case 7:
-                    Activo = False
                     print("Fin del Programa")
+                    break
         except ValueError:
             print("ERROR : VALOR INGRESADO NO ES UN NUMERO")
 
@@ -334,8 +479,8 @@ def main():
     # datos generales / libros / usuarios
     # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"]]}
     libros = {1: ["El Gato", "Juan", 2025, "disponible", [0, 0, 0], [0, 0, 0]]}
-    # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo]]}
-    usuarios = {70479564: ["Juan", "Espinoza Ramos", []]}
+    # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo],deuda]}
+    usuarios = {70479564: ["Juan", "Espinoza Ramos", [], 0]}
     menu(libros, usuarios)
 
 
