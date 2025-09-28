@@ -41,28 +41,105 @@ def f_mostrar_menu():
     )
 
 
+def menu_reportes():
+    print(
+        r"""
+ +-------------------------------------------------------------------------------------------+
+ |           ---------------------------------------------------------------------           |
+ |           |1.       Libros más prestados (popularidad de títulos)             |           |
+ |           ---------------------------------------------------------------------           |
+ |           ---------------------------------------------------------------------           |
+ |           |2.      Usuarios con más préstamos (eficiencia de lectura)         |           |
+ |           ---------------------------------------------------------------------           |
+ |           ----------------------------------------------------------------------          |
+ |           |3.      Tiempo promedio de préstamo por libro (análisis de duración)|          |
+ |           ----------------------------------------------------------------------          |
+ |           ---------------------------------------------------------------------           |
+ |           |4.      Recaudación por penalidades (análisis de ingresos)         |           |
+ |           ---------------------------------------------------------------------           |
+ |           ---------------------------------------------------------------------           |
+ |           |5.                           |                                                 |
+ |           ---------------------------------------------------------------------           |
+ |           ---------------------------------------------------------------------           |
+ |           |6.                                 |                                           |
+ |           ---------------------------------------------------------------------           |
+ |           ---------------------------------------------------------------------           |
+ |           | 7.                       Regresar al menu                         |           |
+ |           ---------------------------------------------------------------------           |
+ +-------------------------------------------------------------------------------------------+
+"""
+    )
+
+
 # funciones auxiliares
 def ver_nombre(n_evaluar):
     no_valido = False
     for letra in n_evaluar:
-        if letra.isdigit():
+        if not (letra.isalpha() or letra == ""):
             no_valido = True
+            break
     return no_valido
 
 
+def or_pres(valor):
+    return valor[1][6]
+
+
+def or_pres_per(valor):
+    return valor[1][4]
+
+
+def reporte1(libros):
+    reporte1 = dict(sorted(libros.items(), key=or_pres, reverse=True))
+    imprimir_libros(reporte1, 0, len(libros), 2)
+
+
+def reporte2(personas):
+    reporte2 = dict(sorted(personas.items(), key=or_pres_per, reverse=True))
+    imprimir_usuarios(reporte2, 0, len(personas), 1)
+
+
+def reporte3(reporte3_list):
+    print(
+        f"Tiempo promedio de préstamo por libro:\
+        {sum(reporte3_list)/len(reporte3_list)} dias "
+    )
+
+
+def reporte4(usuarios):
+    list_llaves = list(usuarios.keys())
+    mora_suma = 0
+    for x in range(len(usuarios)):
+        mora_suma = usuarios[list_llaves[x]][3]
+
+    print(f"Recaudación por penalidades: S/.{mora_suma}")
+
+
 # funcion para imprimir usuarios en un rango definido
-def imprimir_usuarios(usuarios, min_ran=0, max_ran=0):
+def imprimir_usuarios(usuarios, min_ran=0, max_ran=0, modo=0):
     list_llaves = list(usuarios.keys())
     try:
         print(
-            "  DNI        NOMBRE(S)         APELLIDO(S)      CANT_PRESTAMOS(ACTUALES)"
+            "  DNI        NOMBRE(S)           APELLIDO(S)      CANT_PRESTAMOS(ACTUALES)",
+            end="",
         )
-        for x in range(min_ran, max_ran):
-            print(
-                f"{list_llaves[x]} {usuarios[list_llaves[x]][0]:^15} \
-                {usuarios[list_llaves[x]][1]:^25}\
-                {len(usuarios[list_llaves[x]][2]):^20}"
-            )
+        if modo == 0:
+            print()
+            for x in range(min_ran, max_ran):
+                print(
+                    f"{list_llaves[x]} {usuarios[list_llaves[x]][0]:^15} \
+        {usuarios[list_llaves[x]][1]:^5}\
+        {len(usuarios[list_llaves[x]][2]):^10}"
+                )
+        if modo == 1:
+            print("        CANT_TOTAL_PRESTAMOS     MERITO")
+            for x in range(min_ran, max_ran):
+                print(
+                    f"{list_llaves[x]} {usuarios[list_llaves[x]][0]:^15} \
+        {usuarios[list_llaves[x]][1]:^5}\
+        {len(usuarios[list_llaves[x]][2]):^10}\
+        {usuarios[list_llaves[x]][4]:>20}   {x+1:>15}"
+                )
     except IndexError:
         print("Se mostro los resultados posibles:")
         print(f"ERROR : FUERA DE RANGO , Rango Maximo :{len(usuarios)}")
@@ -75,26 +152,39 @@ def imprimir_libros(libros, min_ran=0, max_ran=0, modo=0):
     list_llaves = list(libros.keys())
     try:
         print(
-            "CODIGO        NOMBRE                    "
-            " AUTOR                    AÑO                        ESTADO"
+            "CODIGO          NOMBRE                "
+            " AUTOR                 AÑO                   ESTADO",
+            end="",
         )
         if modo == 0:
+            print()
             for x in range(min_ran, max_ran):
                 print(
-                    f"{list_llaves[x]:^5} {libros[list_llaves[x]][0]:>14} \
-                    {libros[list_llaves[x]][1]:>0} \
-                    {libros[list_llaves[x]][2]:>2} \
-                    {libros[list_llaves[x]][3]:>2}"
+                    f"{list_llaves[x]:^5} {libros[list_llaves[x]][0]:>16} \
+                {libros[list_llaves[x]][1]:>0} \
+                {libros[list_llaves[x]][2]:>2} \
+                {libros[list_llaves[x]][3]:>2}"
                 )
         elif modo == 1:
+            print()
             for x in range(min_ran, max_ran):
                 if "disponible" in libros[list_llaves[x]]:
                     print(
-                        f"{list_llaves[x]:^5} {libros[list_llaves[x]][0]:>14} \
-                        {libros[list_llaves[x]][1]:>0} \
-                        {libros[list_llaves[x]][2]:>2} \
-                        {libros[list_llaves[x]][3]:>2}"
+                        f"{list_llaves[x]:^5} {libros[list_llaves[x]][0]:>16} \
+                {libros[list_llaves[x]][1]:>0} \
+                {libros[list_llaves[x]][2]:>2} \
+                {libros[list_llaves[x]][3]:>2}"
                     )
+        elif modo == 2:
+            print("       MERITO      Cant_Prestamos")
+            for x in range(min_ran, max_ran):
+                print(
+                    f"{list_llaves[x]:^5} {libros[list_llaves[x]][0]:>16} \
+                {libros[list_llaves[x]][1]:>0} \
+                {libros[list_llaves[x]][2]:>2} \
+                {libros[list_llaves[x]][3]:>2} \
+      {x+1}       {libros[list_llaves[x]][6]:>10}"
+                )
     except IndexError:
         print("Se mostro los resultados posibles:")
         print(f"ERROR : FUERA DE RANGO , Rango Maximo :{len(libros)}")
@@ -214,7 +304,6 @@ def reg_usuario(usuarios):
                 break
             elif dni in usuarios:
                 print(f"Persona ya registrada con el dni:{dni}")
-                break
             else:
                 print("DNI NO VALIDO")
         while True:
@@ -231,7 +320,7 @@ def reg_usuario(usuarios):
             else:
                 print("Apellido(s) asignado correctamente")
                 break
-            usuarios.update({dni: [nombre.title(), apellidos.title(), []]})
+        usuarios.update({dni: [nombre.title(), apellidos.title(), [], 0, 0]})
 
     except ValueError:
         print("ERROR: VALOR INGRESADO NO VALIDO")
@@ -259,7 +348,17 @@ def reg_libro(libros):
                 break
         anio = int(input("año de publicacion: "))
         libros.update(
-            {codigo: [nombre.title(), autor.title(), anio, "disponible", [0, 0, 0]]}
+            {
+                codigo: [
+                    nombre.title(),
+                    autor.title(),
+                    anio,
+                    "disponible",
+                    [0, 0, 0],
+                    [0, 0, 0],
+                    0,
+                ]
+            }
         )
         print(f"Libro ID:{codigo} ha sido registrado con exito")
     except ValueError:
@@ -297,6 +396,7 @@ def pres_lib(usuarios, libros):
                             libros[usu_entrada][4][1] = mes
                             libros[usu_entrada][4][2] = annio
                             libros[usu_entrada][3] = "prestado"
+                            usuarios[dni][4] += 1  # cant_prestamos
                             usuarios[dni][2].append(usu_entrada)
                             print("-----------------Resumen-----------------")
                             print(f"        {dia} / {mes} / {annio}")
@@ -326,7 +426,7 @@ def pres_lib(usuarios, libros):
         print("Error de ingreso de datos")
 
 
-def devol_lib(usuarios, libros):
+def devol_lib(usuarios, libros, reporte3_list):
     try:
 
         while True and len(usuarios) > 0:
@@ -362,9 +462,19 @@ def devol_lib(usuarios, libros):
                             break
                         else:
                             print("Fecha invalida")
-                    # fecha actual - fecha limite
+                    #  fecha limite - fecha actual
                     dias_mora = cal_mora(libros[usu_entrada][5]) - cal_mora(
                         [dia, mes, annio]
+                    )
+                    # diferencia de dias desde el prestamo y la devolucion
+                    reporte3_list.append(
+                        max(
+                            0,
+                            (
+                                cal_mora(libros[usu_entrada][4])
+                                - cal_mora([dia, mes, annio])
+                            ),
+                        )
                     )
                     mora = max(0, dias_mora)
                     mora = mora * 10
@@ -446,11 +556,33 @@ def cal_penalidad():
         print("ERROR")
 
 
-def ver_reports():
-    pass
+def ver_reports(usuarios, libros, reporte3_list):
+    while True:
+        menu_reportes()
+        try:
+            usu_entrada = int(input("Eleccion del usuario:  "))
+            match usu_entrada:
+                case 1:
+                    print("REPORTE:Libros más prestados (popularidad de títulos)")
+                    reporte1(libros)
+                case 2:
+                    print("Usuarios con más préstamos (eficiencia de lectura).")
+                    reporte2(usuarios)
+                case 3:
+                    reporte3(reporte3_list)
+                case 4:
+                    reporte4(usuarios)
+                case 5:
+                    pass
+                case 6:
+                    pass
+                case 7:
+                    break
+        except ValueError:
+            print("ERROR : VALOR INGRESADO NO ES UN NUMERO")
 
 
-def menu(libros, usuarios):
+def menu(libros, usuarios, reporte3_list):
     while True:
         f_mostrar_menu()
         try:
@@ -463,11 +595,11 @@ def menu(libros, usuarios):
                 case 3:
                     pres_lib(usuarios, libros)
                 case 4:
-                    devol_lib(usuarios, libros)
+                    devol_lib(usuarios, libros, reporte3_list)
                 case 5:
                     cal_penalidad()
                 case 6:
-                    ver_reports()
+                    ver_reports(usuarios, libros, reporte3_list)
                 case 7:
                     print("Fin del Programa")
                     break
@@ -478,10 +610,12 @@ def menu(libros, usuarios):
 def main():
     # datos generales / libros / usuarios
     # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"]]}
-    libros = {1: ["El Gato", "Juan", 2025, "disponible", [0, 0, 0], [0, 0, 0]]}
-    # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo],deuda]}
-    usuarios = {70479564: ["Juan", "Espinoza Ramos", [], 0]}
-    menu(libros, usuarios)
+    libros = {1: ["El Gato", "Juan", 2025, "disponible", [0, 0, 0], [0, 0, 0], 0]}
+    # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo],deuda,c_prestamos]}
+    usuarios = {70479564: ["Juan", "Espinoza Ramos", [], 0, 0]}
+    # reportes_list [dias por diferencia entre fecha prestamo y entrega ]
+    reporte3_list = [1, 2]
+    menu(libros, usuarios, reporte3_list)
 
 
 main()
