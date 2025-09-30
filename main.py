@@ -75,7 +75,7 @@ def menu_reportes():
 def ver_nombre(n_evaluar):
     no_valido = False
     for letra in n_evaluar:
-        if not (letra.isalpha() or letra == ""):
+        if not (letra.isalpha() or letra == " "):
             no_valido = True
             break
     return no_valido
@@ -754,22 +754,22 @@ def devol_lib(usuarios, libros, reporte3_list):
                         mes = int(input("Mes: "))
                         annio = int(input("Año: "))
                         if fecha_valida(dia, mes, annio) and f_penal_v(
-                            [dia, mes, annio], libros[usu_entrada][5]
+                            [dia, mes, annio], libros[usu_entrada][4]
                         ):
                             break
                         else:
                             print("Fecha invalida")
                     #  fecha limite - fecha actual
-                    dias_mora = cal_mora(libros[usu_entrada][5]) - cal_mora(
-                        [dia, mes, annio]
+                    dias_mora = cal_mora([dia, mes, annio]) - cal_mora(
+                        libros[usu_entrada][5]
                     )
                     # diferencia de dias desde el prestamo y la devolucion
                     reporte3_list.append(
                         max(
                             0,
                             (
-                                cal_mora(libros[usu_entrada][4])
-                                - cal_mora([dia, mes, annio])
+                                cal_mora([dia, mes, annio])
+                                - cal_mora(libros[usu_entrada][5])
                             ),
                         )
                     )
@@ -909,7 +909,10 @@ def main():
     # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"]]}
     libros = {1: ["El Gato", "Juan", 2025, "disponible", [0, 0, 0], [0, 0, 0], 0]}
     # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo],deuda,c_prestamos]}
-    usuarios = {70479564: ["Juan", "Espinoza Ramos", [], 0, 0]}
+    usuarios = {
+        70479564: ["Juan", "Espinoza Ramos", [], 0, 0],
+        71479564: ["Juan", "Espinoza Ramos", [], 0, 0],
+    }
     # reportes_list [dias por diferencia entre fecha prestamo y entrega ]
     reporte3_list = []
     menu(libros, usuarios, reporte3_list)
