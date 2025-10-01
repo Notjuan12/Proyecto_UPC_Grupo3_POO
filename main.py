@@ -759,17 +759,21 @@ def devol_lib(usuarios, libros, reporte3_list):
                             break
                         else:
                             print("Fecha invalida")
-                    #  fecha limite - fecha actual
-                    dias_mora = cal_mora([dia, mes, annio]) - cal_mora(
-                        libros[usu_entrada][5]
+                    #  fecha devolucion - fecha prestamo
+                    dias_mora = (
+                        cal_mora([dia, mes, annio])
+                        - cal_mora(libros[usu_entrada][4])
+                        - 7
                     )
-                    # diferencia de dias desde el prestamo y la devolucion
+
+                    # diferencia de dias desde la devolucion y el prestamo
                     reporte3_list.append(
                         max(
                             0,
                             (
                                 cal_mora([dia, mes, annio])
-                                - cal_mora(libros[usu_entrada][5])
+                                - cal_mora(libros[usu_entrada][4])
+                                - 6
                             ),
                         )
                     )
@@ -821,9 +825,6 @@ def cal_penalidad():
                     break
                 else:
                     print("Fecha no valida")
-            dia_actual, mes_actual, annio_actual = cal_f_entrega(
-                [dia_actual, mes_actual, annio_actual]
-            )
             print("Recuerde : la mora empieza luego de 7 dias de inicio")
             while True:
                 print("Ingrese la fecha de devolucion:")
@@ -841,13 +842,15 @@ def cal_penalidad():
                 print("No valido , volver a ingresar fechas")
                 continue
             else:
-                dias_mora = cal_mora([dia_dev, mes_dev, annio_dev]) - cal_mora(
-                    [dia_actual, mes_actual, annio_actual]
+                dias_mora = (
+                    cal_mora([dia_dev, mes_dev, annio_dev])
+                    - cal_mora([dia_actual, mes_actual, annio_actual])
+                    - 7
                 )
                 mora = max(0, dias_mora)
                 mora = mora * 10
                 print(
-                    f"Mora estimada luego del {dia_actual}/ {mes_actual}/{annio_actual} de {dias_mora} dias es de : S/.{mora}"
+                    f"Mora estimada luego del {dia_actual}/ {mes_actual}/{annio_actual} de {max(0, dias_mora)} dias es de : S/.{mora}"
                 )
     except ValueError:
         print("ERROR")
@@ -909,10 +912,7 @@ def main():
     # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"]]}
     libros = {1: ["El Gato", "Juan", 2025, "disponible", [0, 0, 0], [0, 0, 0], 0]}
     # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo],deuda,c_prestamos]}
-    usuarios = {
-        70479564: ["Juan", "Espinoza Ramos", [], 0, 0],
-        71479564: ["Juan", "Espinoza Ramos", [], 0, 0],
-    }
+    usuarios = {70479564: ["Juan", "Espinoza Ramos", [], 0, 0]}
     # reportes_list [dias por diferencia entre fecha prestamo y entrega ]
     reporte3_list = []
     menu(libros, usuarios, reporte3_list)
