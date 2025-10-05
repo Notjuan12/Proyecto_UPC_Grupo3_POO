@@ -72,6 +72,9 @@ def menu_reportes():
 
 
 # funciones auxiliares
+
+# Verificar si el nombre es valido
+
 def ver_nombre(n_evaluar):
     no_valido = False
     for letra in n_evaluar:
@@ -80,7 +83,7 @@ def ver_nombre(n_evaluar):
             break
     return no_valido
 
-
+# funciones para usarlas en el sort
 def or_pres(valor):
     return valor[1][6]
 
@@ -488,10 +491,11 @@ def imprimir_libros(libros, min_ran=0, max_ran=0, modo=0):
 
 
 # funciones de tiempo
+# Verificar si el año es bisiesto
 def es_bisiesto(annio):
     return (annio % 4 == 0 and annio % 100 != 0) or (annio % 400 == 0)
 
-
+# Funcion para retornar la cantidad de dias en meses respectivos
 def dias_en_mes(mes, annio):
     if mes in (1, 3, 5, 7, 8, 10, 12):
         return 31
@@ -504,7 +508,7 @@ def dias_en_mes(mes, annio):
             return 28
     return 0
 
-
+# Verificar si la fecha existe
 def fecha_valida(dia, mes, annio):
     bisiesto = es_bisiesto(annio)
 
@@ -528,7 +532,7 @@ def fecha_valida(dia, mes, annio):
     return True
 
 
-# suponiendo que cada mes tiene 30 dias
+# Calcular la fecha de entrega estimada
 def cal_f_entrega(actual):
     dia, mes, annio = actual
     bisiesto = (annio % 400 == 0) or (annio % 4 == 0 and annio % 100 != 0)
@@ -555,7 +559,7 @@ def cal_f_entrega(actual):
         mes %= 12
     return [dia, mes, annio]
 
-
+# Verificar si la fecha es mayor a la fecha inicial(Validar)
 def f_penal_v(actual, limite):
     resultado = False
     dia, mes, annio = actual
@@ -572,7 +576,7 @@ def f_penal_v(actual, limite):
 
     return resultado
 
-
+# pasar todo a dias
 def cal_mora(fecha):
     dia, mes, annio = fecha
     total_dias = 0
@@ -669,7 +673,7 @@ def pres_lib(usuarios, libros):
             dni = int(input("Ingrese el dni (0 = salir): "))
             if dni in usuarios:
                 print("DNI VALIDO:")
-                if len(usuarios[dni][2]) < 4:
+                if len(usuarios[dni][2]) < 3:
                     usu_entrada = input(
                         "Desea ver todos los libros disponibles?(S/N): "
                     )
@@ -759,7 +763,7 @@ def devol_lib(usuarios, libros, reporte3_list):
                             break
                         else:
                             print("Fecha invalida")
-                    #  fecha devolucion - fecha prestamo
+                    #  fecha devolucion - fecha prestamo - 7 dias de inicio
                     dias_mora = (
                         cal_mora([dia, mes, annio])
                         - cal_mora(libros[usu_entrada][4])
@@ -773,7 +777,7 @@ def devol_lib(usuarios, libros, reporte3_list):
                             (
                                 cal_mora([dia, mes, annio])
                                 - cal_mora(libros[usu_entrada][4])
-                                - 6
+                                - 7
                             ),
                         )
                     )
