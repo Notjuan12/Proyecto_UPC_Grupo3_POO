@@ -75,6 +75,7 @@ def menu_reportes():
 
 # Verificar si el nombre es valido
 
+
 def ver_nombre(n_evaluar):
     no_valido = False
     for letra in n_evaluar:
@@ -82,6 +83,7 @@ def ver_nombre(n_evaluar):
             no_valido = True
             break
     return no_valido
+
 
 # funciones para usarlas en el sort
 def or_pres(valor):
@@ -495,6 +497,7 @@ def imprimir_libros(libros, min_ran=0, max_ran=0, modo=0):
 def es_bisiesto(annio):
     return (annio % 4 == 0 and annio % 100 != 0) or (annio % 400 == 0)
 
+
 # Funcion para retornar la cantidad de dias en meses respectivos
 def dias_en_mes(mes, annio):
     if mes in (1, 3, 5, 7, 8, 10, 12):
@@ -507,6 +510,7 @@ def dias_en_mes(mes, annio):
         else:
             return 28
     return 0
+
 
 # Verificar si la fecha existe
 def fecha_valida(dia, mes, annio):
@@ -559,6 +563,7 @@ def cal_f_entrega(actual):
         mes %= 12
     return [dia, mes, annio]
 
+
 # Verificar si la fecha es mayor a la fecha inicial(Validar)
 def f_penal_v(actual, limite):
     resultado = False
@@ -575,6 +580,7 @@ def f_penal_v(actual, limite):
                 resultado = True
 
     return resultado
+
 
 # pasar todo a dias
 def cal_mora(fecha):
@@ -912,11 +918,88 @@ def menu(libros, usuarios, reporte3_list):
 
 
 def main():
-    # datos generales / libros / usuarios
-    # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"]]}
-    libros = {1: ["El Gato", "Juan", 2025, "disponible", [0, 0, 0], [0, 0, 0], 0]}
-    # Usuarios {"DNI": ["nombre","Apellidos",[zona de libros prestados x codigo],deuda,c_prestamos]}
-    usuarios = {70479564: ["Juan", "Espinoza Ramos", [], 0, 0]}
+    # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"],["dia_l","mes_l","año_l"],cant_prestamos]}
+    libros = {
+        101: [
+            "Cien Años de Soledad",
+            "Gabriel Garcia Marquez",
+            1967,
+            "disponible",
+            [0, 0, 0],
+            [0, 0, 0],
+            0,
+        ],
+        102: [
+            "El Gran Gatsby",
+            "F. Scott Fitzgerald",
+            1925,
+            "disponible",
+            [0, 0, 0],
+            [0, 0, 0],
+            0,
+        ],
+        103: ["1984", "George Orwell", 1949, "disponible", [0, 0, 0], [0, 0, 0], 0],
+        104: [
+            "Crimen y Castigo",
+            "Fyodor Dostoevsky",
+            1866,
+            "disponible",
+            [0, 0, 0],
+            [0, 0, 0],
+            0,
+        ],
+        105: [
+            "Don Quijote",
+            "Miguel De Cervantes",
+            1605,
+            "disponible",
+            [0, 0, 0],
+            [0, 0, 0],
+            0,
+        ],
+        106: [
+            "Moby Dick",
+            "Herman Melville",
+            1851,
+            "disponible",
+            [0, 0, 0],
+            [0, 0, 0],
+            0,
+        ],
+        107: [
+            "El Principito",
+            "Antoine De Saint-Exupéry",
+            1943,
+            "disponible",
+            [0, 0, 0],
+            [0, 0, 0],
+            0,
+        ],
+        108: [
+            "Un Mundo Feliz",
+            "Aldous Huxley",
+            1932,
+            "disponible",
+            [0, 0, 0],
+            [0, 0, 0],
+            0,
+        ],
+        109: ["Odisea", "Homero", 700, "disponible", [0, 0, 0], [0, 0, 0], 0],
+        110: ["La Iliada", "Homero", 750, "disponible", [0, 0, 0], [0, 0, 0], 0],
+    }
+    # Usuarios {"DNI": ["nombre","Apellidos",[lista de libros prestados x codigo],deuda,c_prestamos]}
+    usuarios = {
+        12345678: ["Ana", "López Pérez", [], 0, 0],
+        23456789: ["Carlos", "García Ruíz", [], 0, 0],
+        34567890: ["Elena", "Martínez Solís", [], 0, 0],
+        45678901: ["David", "Sánchez Soto", [], 0, 0],
+        56789012: ["Sofía", "Herrera Castro", [], 0, 0],
+        67890123: ["Jorge", "Vásquez Mendoza", [], 0, 0],
+        78901234: ["María", "Torres Díaz", [], 0, 0],
+        89012345: ["Ricardo", "Huamán Reyes", [], 0, 0],
+        90123456: ["Laura", "Ríos Flores", [], 0, 0],
+        70479564: ["Juan", "Espinoza Ramos", [], 0, 0],
+    }
     # reportes_list [dias por diferencia entre fecha prestamo y entrega ]
     reporte3_list = []
     menu(libros, usuarios, reporte3_list)
