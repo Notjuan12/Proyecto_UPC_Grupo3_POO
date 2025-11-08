@@ -1,1008 +1,306 @@
-def f_mostrar_menu():
-    print(
-        r"""
-                                                 __...--~~~~~-._   _.-~~~~~--...__
-                                                //               `V'               \\ 
-                                               //                 |                 \\ 
-                                              //__...--~~~~~~-._  |  _.-~~~~~~--...__\\ 
-                                             //__.....----~~~~._\ | /_.~~~~----.....__\\
-                                            ====================\\|//====================
-                                                                `---`
- +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
- |  ▄▄▄▄▄  ▄▄▄▄▄  ▄▄▄▄▄  ▄      ▄▄▄▄▄   ▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   ▄▄▄    ▄▄          ▄    ▄ ▄▄   ▄ ▄▄▄▄▄  ▄    ▄ ▄▄▄▄▄▄ ▄▄▄▄▄   ▄▄▄▄  ▄▄▄▄▄ ▄▄▄▄▄▄▄   ▄▄   ▄▄▄▄▄  ▄▄▄▄▄    ▄▄    |
- |  █    █   █    █    █ █        █    ▄▀  ▀▄   █    █      ▄▀   ▀   ██          █    █ █▀▄  █   █    ▀▄  ▄▀ █      █   ▀█ █▀   ▀   █      █      ██   █   ▀█   █      ██    |
- |  █▄▄▄▄▀   █    █▄▄▄▄▀ █        █    █    █   █    █▄▄▄▄▄ █       █  █         █    █ █ █▄ █   █     █  █  █▄▄▄▄▄ █▄▄▄▄▀ ▀█▄▄▄    █      █     █  █  █▄▄▄▄▀   █     █  █   |
- |  █    █   █    █    █ █        █    █    █   █    █      █       █▄▄█         █    █ █  █ █   █     ▀▄▄▀  █      █   ▀▄     ▀█   █      █     █▄▄█  █   ▀▄   █     █▄▄█   |
- |  █▄▄▄▄▀ ▄▄█▄▄  █▄▄▄▄▀ █▄▄▄▄▄ ▄▄█▄▄   █▄▄█    █    █▄▄▄▄▄  ▀▄▄▄▀ █    █        ▀▄▄▄▄▀ █   ██ ▄▄█▄▄    ██   █▄▄▄▄▄ █    ▀ ▀▄▄▄█▀ ▄▄█▄▄    █    █    █ █    ▀ ▄▄█▄▄  █    █  |
- +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      | 1.                      REGISTRAR USUARIO                         |                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      | 2.                      REGISTRAR LIBRO                           |                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      | 3.                       PRESTAR LIBRO                            |                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      | 4.                       DEVOLVER LIBRO                           |                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      | 5.                     CALCULAR PENALIDAD                         |                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      | 6.                        VER REPORTES                            |                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- |                                      | 7.                            SALIR                               |                                                                |
- |                                      ---------------------------------------------------------------------                                                                |
- +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-        """
-    )
+from abc import ABC, abstractmethod
 
 
-def menu_reportes():
-    print(
-        r"""
- +-------------------------------------------------------------------------------------------+
- |           ---------------------------------------------------------------------           |
- |           |1.       Libros más prestados (popularidad de títulos)             |           |
- |           ---------------------------------------------------------------------           |
- |           ---------------------------------------------------------------------           |
- |           |2.      Usuarios con más préstamos (eficiencia de lectura)         |           |
- |           ---------------------------------------------------------------------           |
- |           ----------------------------------------------------------------------          |
- |           |3.      Tiempo promedio de préstamo por libro (análisis de duración)|          |
- |           ----------------------------------------------------------------------          |
- |           ---------------------------------------------------------------------           |
- |           |4.      Recaudación por penalidades (análisis de ingresos)         |           |
- |           ---------------------------------------------------------------------           |
- |           ---------------------------------------------------------------------           |
- |           |5.         LIBROS DISPONIBLES VS LIBROS PRESTADOS                  |           |
- |           ---------------------------------------------------------------------           |
- |           ---------------------------------------------------------------------           |
- |           |6.          REPORTE DE FECHAS DE PUBLICACIONES DE LIBROS           |           |
- |           ---------------------------------------------------------------------           |
- |           ---------------------------------------------------------------------           |
- |           | 7.                       Regresar al menu                         |           |
- |           ---------------------------------------------------------------------           |
- +-------------------------------------------------------------------------------------------+
-"""
-    )
+class Persona(ABC):
+    def __init__(self, dni, nombre, apellidos):
+        self._dni = dni
+        self._nombre = nombre
+        self._apellidos = apellidos
+
+    @abstractmethod
+    def mostrar_info(self):
+        pass
 
 
-# funciones auxiliares
+class Usuario(Persona):
+    def __init__(self, dni, nombre, apellidos):
+        super().__init__(dni, nombre, apellidos)
+        self._libros_prestados = []  # lista de codigos de libros
+        self._deuda = 0  # monto de deuda
+        self._cant_prestamos = 0  # cantidad total de préstamos
 
-# Verificar si el nombre es valido
+    @property
+    def libros_prestados(self):
+        self._libros_prestados.copy()
 
+    def registrar_prestamo(self, codigo_libro: int):
+        """Registra un nuevo prestamo (máximo 3 libros):"""
+        if len(self._libros_prestados) >= 3:
+            print("Solo es maximo de 3 préstamos por usuario.")
+            return
+        self._libros_prestados.append(codigo_libro)
+        self._cant_prestamos += 1
+        print(f"Libro con codigo {codigo_libro} registrado correctamente.")
 
-def ver_nombre(n_evaluar):
-    no_valido = False
-    for letra in n_evaluar:
-        if not (letra.isalpha() or letra == " "):
-            no_valido = True
-            break
-    return no_valido
-
-
-# funciones para usarlas en el sort
-def or_pres(valor):
-    return valor[1][6]
-
-
-def or_pres_per(valor):
-    return valor[1][4]
-
-
-def or_deuda(valor):
-    return valor[1][3]
-
-
-# Reportes
-
-
-def reporte1(libros):
-    reporte_1 = dict(sorted(libros.items(), key=or_pres, reverse=True))
-    imprimir_libros(reporte_1, 0, len(libros), 2)
-
-
-def reporte2(personas):
-    reporte_2 = dict(sorted(personas.items(), key=or_pres_per, reverse=True))
-    imprimir_usuarios(reporte_2, 0, len(personas), 1)
-
-
-def reporte3(reporte3_list):
-    try:
-        print(
-            r"""                                                                                
-                                :-=+++=-:                                                           
-                        :=#@@@@@@@@@@@@@@@@@@@*-:                                                   
-                     +@@@@@@@@@@@@@@@@@@@@@@@@@@@@%=                                                
-                  +@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-                                             
-               :%@@@@@@@@@@#=              :=#@@@@@@@@@@*                                           
-             :@@@@@@@@@#:                       -@@@@@@@@@#                                         
-            #@@@@@@@%:        -++:                 =@@@@@@@@=                                       
-          -@@@@@@@#:      *@@#:                      :@@@@@@@%                                      
-         =@@@@@@@:     =@@@#                           -@@@@@@@:                                    
-        +@@@@@@*     +@@@#                               %@@@@@@-                                   
-       =@@@@@@-    -@@@@=                                 *@@@@@@                                   
-      -@@@@@@-    *@@@@:                                   *@@@@@@                                  
-      %@@@@@=    #@@@@                                      %@@@@@*                                 
-     =@@@@@%    +@@@@:                                       @@@@@@:                                
-     %@@@@@-    @@@@#                                        *@@@@@=                                
-    :@@@@@@    *@@@@       BUSQUEDA EN LOS DATOS             :@@@@@@                                
-    -@@@@@#    @@@@#                                          @@@@@@                                
-    =@@@@@*    @@@@*          TIEMPO ESTIMADO                 %@@@@@:                               
-    =@@@@@*    @@@@+                                          @@@@@@                                
-    -@@@@@%    @@@@*                                          @@@@@@                                
-     @@@@@@:   -@@@#                                         =@@@@@#                                
-     *@@@@@+    %@@@                                         #@@@@@=                                
-     -@@@@@@    :@@@#                                       =@@@@@@                                 
-      *@@@@@#    -@@@:                                      @@@@@@-                                 
-       @@@@@@#    :@@@:                                    @@@@@@#                                  
-       :@@@@@@%     +@@:                                 :@@@@@@%                                   
-        :@@@@@@@:     #@=                               =@@@@@@%                                    
-          %@@@@@@#      =#                            :%@@@@@@*                                     
-           *@@@@@@@#                                :@@@@@@@@-                                      
-            :%@@@@@@@@-                           +@@@@@@@@# :%@-                                   
-              :@@@@@@@@@%+:                   :*@@@@@@@@@%: *@@@@@:                                 
-                 %@@@@@@@@@@@@*-         =#@@@@@@@@@@@@#  *@@@@%:                                   
-                   =%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%:  :%@@@%  #@@@@@@#                            
-                      :#@@@@@@@@@@@@@@@@@@@@@@@@@+        :@@ =@@@@@@@@@@#                          
-                           -#%@@@@@@@@@@@@@%+:              - @@@@@@@@@@@@@+                        
-                                                              @@@@@@@@@@@@@@@=                      
-                                                              -@@@@@@@@@@@@@@@@:                    
-                                                                #@@@@@@@@@@@@@@@%:                  
-                                                                  @@@@@@@@@@@@@@@@%                 
-                                                                   -@@@@@@@@@@@@@@@@#               
-                                                                     =@@@@@@@@@@@@@@@@+             
-                                                                       =@@@@@@@@@@@@@@@@=           
-                                                                         *@@@@@@@@@@@@@@@@:         
-                                                                           #@@@@@@@@@@@@@@@@:       
-                                                                             @@@@@@@@@@@@@@@@%      
-                                                                              :@@@@@@@@@@@@@@@@     
-                                                                                -@@@@@@@@@@@@@@*    
-                                                                                  +@@@@@@@@@@@@=    
-                                                                                    *@@@@@@@@@*     
-                                                                                      +@@@@@*       
-"""
-        )
-        print("_____________________________________" * 3)
-        print(" " * 20, end="")
-        print(
-            f"Tiempo promedio de préstamo por libro:\
-            {sum(reporte3_list)/len(reporte3_list):.2f} dias "
-        )
-        recuentos = dict()
-        for num in reporte3_list:
-            recuentos[num] = recuentos.get(num, 0) + 1
-
-        print("_____________________________________" * 3)
-        print(" " * 20, end="")
-        print("               Cantidad Promedio de Horas")
-        print("_____________________________________" * 3)
-        for clave, valor in recuentos.items():
-            print(f"Cantidad de horas => {clave}      | recuento => {valor}")
-        print("_____________________________________" * 3)
-        input("Enter para continuar")
-    except ZeroDivisionError:
-        print(" " * 20, end="")
-        print("Datos no disponibles")
-        print("_____________________________________" * 3)
-        input("Enter para continuar")
-
-
-def reporte4(usuarios):
-    print(
-        r"""
-                                                 ..                                                 
-   .                                   .       .----:..    ....                                   . 
-  .                                  .       ..-------:....:--.            .       .     .          
-                .                 ..  .---. .-==-----=====----:.               .   .    .           
-   .         .                        :---======----=====----:.  .  .                 .             
-   .                 .             .  .:---=====----=====---..                        .        .    
- .    .   .                            ..---====----====---.      .         .       .           .   
-.                                       . :--===---====--:.                      .                  
-                          .               .--===---======.                                          
-                      .  ..               -########*****+:.           .                        .    
-     .                       .            .-==**====**===.          .      .                        
-     .                        .           .-=#+------=#*=..            .                            
-      .   .                     .       ..-+#----------+#=:.               .   .   .                
-     .                                 .-----------------==-:.   .            .                     
-                   .              . ..--------------------===-..                    ..              
- .           . ..                  .:-----------------------===:...              .             .    
-                                ...-------------=+++---------===-..                     .           
-                  .          . ..:--------------+##*----------====:.     .  .                       
-  .   .                        .:-------------=*#####**=-------====:                          .     
-..        .                   .:------------=##########+--------====-.                              
-      .                       :-------------*###+----+*---------=====:.                      . .  . 
- .   .           .          ..--------------*###*=---------------=====:. .                 .        
-                   .       ..---------------=#######*-------------====-.     .                   .  
-     .                ..   .:-----------------=*######*=----------=====:                            
-     .                     .----------------------+*###*----------======..   .  .   .          .    
-                           .------------------------*###=----------=====..             ..           
-              .  .  .      .----------------+##*+=+####*-----------=====:.                   .      
-           .  .            .----------------##########*------------=====..    .                     
-                           .------------------=+*##*=-------------=====-..                         .
-          .                ..-------------------*##*--------------=====.                  . .    .  
-                            .:-----------------------------------=====:.                            
-             . .        .     .---------------------------------====-.. .  .                        
-.                    .    ...::::------------------------------====-::::...                  .  .   
-                          .::::::::--------------------------==--:::::::::.       .     .           
-           .               ......::::::::::::::::::::::::::::::::::.......                          
-"""
-    )
-    list_llaves = list(usuarios.keys())
-    mora_suma = 0
-    for x in range(len(usuarios)):
-        mora_suma += usuarios[list_llaves[x]][3]
-    print("_____________________________________" * 3)
-    print(" " * 30, end="")
-    print(f"Recaudación por penalidades: S/.{mora_suma}")
-    print("_____________________________________" * 3)
-    reporte_4 = dict(sorted(usuarios.items(), key=or_deuda, reverse=True))
-    list_llaves = list(reporte_4.keys())
-    print(" " * 30, end="")
-    print("TOP DEUDORES")
-    for x in range(min(3, len(reporte_4))):
-        print(" " * 15, end="")
-        print(
-            f"TOP {x+1} :  DNI:{list_llaves[x]}    /{reporte_4[list_llaves[x]][0]:^15}\
-Deuda:{reporte_4[list_llaves[x]][3]}"
-        )
-    print("_____________________________________" * 3)
-    input("Enter para continuar")
-
-
-def reporte5(libros):
-    print(
-        r"""
- .                                .    .          .                           .                     
-                         .                         .....:-=+*=..                                    
-       .                .                      ...-*##*==-----#=...                              .  
-              .                          ..:-*#*+--------------*+..      .       .          .       
-            . .                    ...=*#*+===========----------++..          .   .         .       
-  .                          . ..+##+=====================-------++.   .                            
-              .         ...:+#*+============================------++.                       .       
-         .  .       ..-+#*+=======================+*#*+===**==-----+*...             .              
-         .   .....+##========================*#*-:::::::::::++=-----+*..                         .  
-          ..:=#*+=====================+**+-::::::::::::::::::++==----*+... .             .          
-    .   ..*#+===================+##+::::::::::::::::::::::::::++==----*=..           .              
-       ..##+================*#=:::.::::::::::::::::::::::::::::++==----*-.                    .  .  
-       .#==#+============*+::.::::::::::::::::::::::::::::::::::*+==----*=.                         
-  .    -#===#===========#::::::::::::::::::::::::::::::::::::::::*+==----*-          .              
-      .-*===+#==========*:::::::::::::::::::::::::::::::::::::::::*===----#:..     .          .     
-      .:#====+#=========#:::::::::::::::::::::::::::::::::::::::::-#===----#:..                     
-       .#=====*#========++:::::::::::::::::::::::::::::::::::::::::++===----#..        .            
-       .:#=====**========*-:::::::::::::::::::::::::::::::::::::::-*=====----#:.                    
-        .*+=====#+========#:::::::::::::::::::::::::::::::::::::=**=======---=#..     .   .         
-         .#+=====#+=======+*:::::::::::::::::::::::::::::::-=##+===========---=#. .                .
-         ..#======#+=======+*::::::::::::::::::::::::-=+#*+=================---=*.                  
-      .  ..-*=====+#========+*::::::::::::::::::-+#*+========================---=*.           .    .
-           .+*=====+#========+*::::::::::::=##*===============================---=#..  .            
-   .       ..+*=====+#=========*+-::-=*#*+=====================================---+*.             . 
-             .*+=====**=========================================================---++..           . 
-           . ..#======*+=========================================================---*+.             
-              ..#======#+=========================================================---*=.            
-              ...#======#+=========================================================---*=.           
-             . ..-*======#+=========================================================---*-           
-                 .=*=====+#=========================================================----#:..  . .   
-                 ..+*=====+#=========================================================---=#..   .    
-                   .*+=====**=========================================================---=#.        
-                    .#======**=========================================================---++.       
-   .        .    .  ..#======#+========================================================----#:..     
-      .              .:#======#+========================================================---*=..     
-   .      .   .       .-*======#+=======================================================*###-..     
-                       .+*=====+#=================================================+*##*+===#.       
-            .           .+*=====+#===========================================+*##++===+*#*-...      
-                         .*+=====+#=====================================+*##+====+##*:.-*..         
-      .                  ..#======**===============================+*##+===++##+-.....-*-.         .
-                        . .:#======**=========================+##*+====*##=:.....=+=:..==.          
-            . .            .:#======#+===================+##*=====*##=......:*+........:#..         
-                            .-*======#+============+*##*+===+*#*=:.:-..-+=:.......:=+=:.-*...  .    
-                   .        ..+*======#+======+###++===+##*-:.:++-:...........=*-:....:+##**.     . 
-                .            ..*+=====+#++##*+====+*#*-..:=*-............-*=.....:+##*====+#:       
-          ...           .      .*+=====#+====+*#+-..-++-....:==....:=+=:....-+#*+====+*#+-...       
-      .                        ..*+===*+=*#+:...........-*=:...-*=:....-*#*+====*##+:.......        
-   .     .          .           ..#+==#+=#..:=*=...-++:...-++:...:-*#*+===+*#*=........             
-                                 ..#+=#++#-...=+=:...-......:+*#*+===+*#+-.....              .      
-                                  ..#+**=##=....-#+....:*##+====+##+......    . .            .      
-                       .           ..**#=+#......:=##*+===+*#*=:.....                               
-                  .                  .+#*=+#+*#*++==+*##+-......                                .   
-            .           .             .-##=====+##*-....                                      .     
-                             .         ..-**=-....... ..      .  .                                  
-"""
-    )
-    aux_dis, aux_pres = 0, 0
-    for libro in libros.values():
-        if libro[3] == "disponible":
-            aux_dis += 1
+    def devolver_libro(self, codigo_libro: int, dias_mora: int = 0):
+        """Devuelve un libro y calcula penalidad."""
+        if codigo_libro in self._libros_prestados:
+            self._libros_prestados.remove(codigo_libro)
+            multa = dias_mora * 10
+            self._deuda += multa
         else:
-            aux_pres += 1
-    print("_____________________________________" * 3)
-    print(" " * 30, end="")
-    print("LIBROS DISPONIBLES VS LIBROS PRESTADOS ")
-    print("_____________________________________" * 3)
-    print(" " * 30, end="")
-    print(f"LIBROS TOTALES :  {len(libros)} ")
-    print("_____________________________________" * 3)
-    print()
-    print(
-        f"LIBROS DISPONIBLES : {int(aux_dis/len(libros)*100) * "*"}:{aux_dis/len(libros)*100:.2f}%"
-    )
-    print(
-        f"LIBROS PRESTADOS   : {int(aux_pres/len(libros)*100) * "*"}:{aux_pres/len(libros)*100:.2f}%"
-    )
-    print("_____________________________________" * 3)
-    input("Enter para continuar")
+            print("ALERTA: Este libro no está registrado en sus préstamos.")
+
+    def mostrar_info(self):
+        """=====INFORMACION GENERAL DEL USUARIO====="""
+        print(f"DNI: {self._dni}")
+        print(f"Nombre: {self._nombre} {self._apellidos}")
+        print(f"Libros prestados: {len(self._libros_prestados)}")
+        print(f"Deuda: S/.{self._deuda}")
 
 
-def reporte6(libros):
-    print(
-        r"""
-                                       :---===++++++++====--::                                      
-                               -=*#%@@@@@@@@@@@@@@@@@@@@@@@@@@@@%#*+-:                              
-                           :*%@@@@@@@%%#**+++===========+++*##%@@@@@@@%*-                           
-                         :#@@@@#+=::                             :-+#@@@@#:                         
-                        -@@@%=                                        =%@@@:                        
-                        %@@@%-                                       :*@@@@=                        
-                        @@@@@@@#+-:                             :-+*%@@@@@@=                        
-                        @@@=+#@@@@@@@#**++=-:::::  ::::-=+++*#@@@@@@@%*-*@@+                        
-                        @@@:   -=+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%*=-    +@@=                        
-                        %@@-         :-==+++****#*****+++++=-:          +@@=                        
-                        *@@-                                            +@@=                        
-                        -@@+                                            *@@:                        
-                        :@@%:                                          -%@%                         
-                         =@@#:   :+=                           :++:   -%@@:                         
-                          *@@%-   :#@%+=                   :=*@@*    =@@@=                          
-                           +@@@*:   +@@@@@#*+==-::::-==+*%@@@@@=   :#@@@=                           
-                            -%@@%+    *@@@@@@@@@@@@@@@@@@@@@@*    +@@@#:                            
-                             :+%@@%-   -#@@@@@@@@@@@@@@@@@@#-   =%@@%=                              
-                               :*@@@#:   =%@@@@@@@@@@@@@@%=   :#@@@+:                               
-                                 -#@@@+   :*@@@@@@@@@@@@*:   +@@@*:                                 
-                                   -%@@@=   -#@@@@@@@@%-   =%@@#-                                   
-                                     =%@@%-   =@@@@@@+   :#@@%=                                     
-                                       +@@@*:  :%@@@-   +@@@+:                                      
-                                        :#@@#:   @@-  :*@@#:                                        
-                                          =@@+:  %@   -@@*                                          
-                                          +@@+   =%   -@@#:                                         
-                                        :#@@#:    -    +@@%=                                        
-                                       +@@@*:           =%@@#:                                      
-                                     -%@@%-              :*@@@*:                                    
-                                   -#@@@+                  -%@@@+                                   
-                                 :*@@@#:                     =@@@%=                                 
-                               :=%@@%-                         +@@@#-                               
-                              -#@@@+                            :*@@@*:                             
-                            :*@@@*:                               -%@@%-                            
-                           -%@@#-                                  :+@@@*                           
-                          :@@@+                  +@:                 :#@@#                          
-                         :@@%-                  +@@@-                  *@@*                         
-                         #@@=                =*@@@@@@%+-                #@@-                        
-                        :@@#             :+#@@@@@@@@@@@@@*=:            =@@*                        
-                        -@@#          =*@@@@@@@@@@@@@@@@@@@@%+-         :@@@                        
-                        -@@*      :=#@@@@@@@@@@@@@@@@@@@@@@@@@@@*=       %@@                        
-                        -@@*    -*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@+:    %@@                        
-                        =@@*  :+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%=   %@@:                       
-                        -@@#  +@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#: :@@@                        
-                        :@@%:  :=*#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#*=:   *@@%                        
-                         +@@%+:      :=++***##%%%%%%%###***+=-:       =#@@%:                        
-                          =%@@@%*=-:                            :-=*%@@@@*                          
-                            =#@@@@@@@%#*+++==-===--======++**#%@@@@@@@#+:                           
-                               -=*#%@@@@@@@@@@@@@@@@@@@@@@@@@@@@%#*=-                               
-                                      :--==++++**++++++++==--:                                      
-"""
-    )
-    try:
-        annios_list = []
-        recuentos = dict()
-        for x in libros.values():
-            annios_list.append(x[2])
-        for num in annios_list:
-            recuentos[num] = recuentos.get(num, 0) + 1
+class Libro:
+    def __init__(self, codigo, titulo, autor, anio_pub):
+        self._codigo = codigo
+        self._titulo = titulo
+        self._autor = autor
+        self._anio_pub = anio_pub
+        self._estado = "disponible"
+        self._contador_pres = 0
 
-        print("_____________________________________" * 3)
-        print(" " * 20, end="")
-        print("               Recuento de Fechas de Publicacion")
-        print("_____________________________________" * 3)
-        for clave, valor in recuentos.items():
-            print(f"Fecha => {clave}      | recuento => {valor}")
-        print("_____________________________________" * 3)
-        input("Enter para continuar")
-    except ZeroDivisionError:
-        print(" " * 20, end="")
-        print("Datos no disponibles")
-        print("_____________________________________" * 3)
-        input("Enter para continuar")
+    # getters
+    @property
+    def codigo(self):
+        return self._codigo
 
+    @property
+    def titulo(self):
+        return self._titulo
 
-# funcion para imprimir usuarios en un rango definido
-# modo = 1 es para imprimir lo necesario en el reporte 2
-def imprimir_usuarios(usuarios, min_ran=0, max_ran=0, modo=0):
-    list_llaves = list(usuarios.keys())
-    try:
+    @property
+    def autor(self):
+        return self._autor
+
+    @property
+    def estado(self):
+        return self._estado
+
+    @property
+    def anio_pub(self):
+        return self._anio_pub
+
+    @property
+    def contador_pres(self):
+        return self._contador_pres
+
+    # metodos
+    def prestar(
+        self,
+    ):
+        self._estado = "prestado"
+        self._contador_pres += 1
+
+    def devolver(self):
+        self._estado = "disponible"
+
+    def mostrar_info(self):
         print(
-            "  DNI        NOMBRE(S)           APELLIDO(S)      CANT_PRESTAMOS(ACTUALES)",
-            end="",
+            f"{self._codigo:^10}{self._titulo:^30}",
+            f"{self._autor:^15}{self._anio_pub:^7}{self._estado:^12}",
+            sep="",
         )
-        if modo == 0:
-            print()
-            for x in range(min_ran, min(20, max_ran)):
-                print(
-                    f"{list_llaves[x]} {usuarios[list_llaves[x]][0]:^15} \
-        {usuarios[list_llaves[x]][1]:^5}\
-        {len(usuarios[list_llaves[x]][2]):^10}"
-                )
-        if modo == 1:
-            print("        CANT_TOTAL_PRESTAMOS     MERITO")
-            for x in range(min_ran, min(20, max_ran)):
-                print(
-                    f"{list_llaves[x]} {usuarios[list_llaves[x]][0]:^15} \
-        {usuarios[list_llaves[x]][1]:^5}\
-        {len(usuarios[list_llaves[x]][2]):^10}\
-        {usuarios[list_llaves[x]][4]:>20}   {x+1:>15}"
-                )
-    except IndexError:
-        print("Se mostro los resultados posibles:")
-        print(f"ERROR : FUERA DE RANGO , Rango Maximo :{len(usuarios)}")
 
 
-# funcion para imprimir u en un rango definido
-# modo = 0 es para imprimir todo
-# modo = 1 es para imprimir solo los disponibles
-# modo = 2 es para imprimir lo necesario en el reporte 1
-def imprimir_libros(libros, min_ran=0, max_ran=0, modo=0):
-    list_llaves = list(libros.keys())
-    try:
-        print(
-            "CODIGO          NOMBRE                "
-            " AUTOR                 AÑO                   ESTADO",
-            end="",
-        )
-        if modo == 0:
-            print()
-            for x in range(min_ran, min(20, max_ran)):
-                print(
-                    f"{list_llaves[x]:^5} {libros[list_llaves[x]][0]:>16} \
-                {libros[list_llaves[x]][1]:>0} \
-                {libros[list_llaves[x]][2]:>2} \
-                {libros[list_llaves[x]][3]:>2}"
-                )
-        elif modo == 1:
-            print()
-            for x in range(min_ran, min(20, max_ran)):
-                if "disponible" in libros[list_llaves[x]]:
-                    print(
-                        f"{list_llaves[x]:^5} {libros[list_llaves[x]][0]:>16} \
-                {libros[list_llaves[x]][1]:>0} \
-                {libros[list_llaves[x]][2]:>2} \
-                {libros[list_llaves[x]][3]:>2}"
-                    )
-        elif modo == 2:
-            print("       MERITO      Cant_Prestamos")
-            for x in range(min_ran, min(20, max_ran)):
-                print(
-                    f"{list_llaves[x]:^5} {libros[list_llaves[x]][0]:>16} \
-                {libros[list_llaves[x]][1]:>0} \
-                {libros[list_llaves[x]][2]:>2} \
-                {libros[list_llaves[x]][3]:>2} \
-      {x+1}       {libros[list_llaves[x]][6]:>10}"
-                )
-    except IndexError:
-        print("Se mostro los resultados posibles:")
-        print(f"ERROR : FUERA DE RANGO , Rango Maximo :{len(libros)}")
+class Prestamo:
+    # funciones auxiliares del sin POO
+    def es_bisiesto(self, anio: int):
+        return anio % 400 == 0 or (anio % 4 == 0 and anio % 100 != 0)
 
-
-# funciones de tiempo
-# Verificar si el año es bisiesto
-def es_bisiesto(annio):
-    return (annio % 4 == 0 and annio % 100 != 0) or (annio % 400 == 0)
-
-
-# Funcion para retornar la cantidad de dias en meses respectivos
-def dias_en_mes(mes, annio):
-    if mes in (1, 3, 5, 7, 8, 10, 12):
-        return 31
-    elif mes in (4, 6, 9, 11):
-        return 30
-    elif mes == 2:
-        if es_bisiesto(annio):
-            return 29
-        else:
-            return 28
-    return 0
-
-
-# Verificar si la fecha existe
-def fecha_valida(dia, mes, annio):
-    bisiesto = es_bisiesto(annio)
-
-    if annio < 2025:
-        return False
-    if mes < 1 or mes > 12:
-        return False
-    elif annio >= 2025:
+    def dias_en_mes(self, mes, anio):
         if mes in [1, 3, 5, 7, 8, 10, 12]:
-            if dia > 31 or dia < 0:
-                return False
+            return 31
         elif mes in [4, 6, 9, 11]:
-            if dia > 30 or dia < 0:
-                return False
+            return 30
         elif mes == 2:
-            if bisiesto:
-                if dia > 29 or 0 > dia:
-                    return False
-            elif dia > 28 or 0 > dia:
-                return False
-    return True
+            return 29 if self.es_bisiesto(anio) else 28
+        return 0
 
+    def cal_f_entrega(self, fecha: tuple[int, int, int]):
+        """Calcula la fecha de entrega sumando 7 días"""
+        d, m, a = fecha
+        d += 7
+        dias_mes = self.dias_en_mes(m, a)
+        if d > dias_mes:
+            d -= dias_mes
+            m += 1
+            if m > 12:
+                m = 1
+                a += 1
+        return (d, m, a)
 
-# Calcular la fecha de entrega estimada
-def cal_f_entrega(actual):
-    dia, mes, annio = actual
-    bisiesto = (annio % 400 == 0) or (annio % 4 == 0 and annio % 100 != 0)
-    dia += 7
-    if mes in [1, 3, 5, 7, 8, 10, 12]:
-        if dia > 31:
-            mes += 1
-            dia %= 31
-    elif mes in [4, 6, 9, 11]:
-        if dia > 30:
-            mes += 1
-            dia %= 30
-    elif mes == 2:
-        if bisiesto:
-            if dia > 29:
-                mes += 1
-                dia %= 29
-        elif dia > 28:
-            mes += 1
-            dia %= 28
+    def cal_mora(self, fecha: tuple[int, int, int]):
+        """Convierte fecha a número total de días desde año 0"""
+        d, m, a = fecha
+        total = a * 365 + d
+        for i in range(1, m):
+            total += self.dias_en_mes(i, a)
+        # añadir días bisiestos
+        total += a // 4 - a // 100 + a // 400
+        return total
 
-    if mes > 12:
-        annio += 1
-        mes %= 12
-    return [dia, mes, annio]
+    def f_penal_v(self, actual: int, limite: int):
+        """Devuelve True si la fecha actual supera la fecha límite"""
+        return self.cal_mora(actual) > self.cal_mora(limite)
 
+    def __init__(
+        self, usuario: "Usuario", libro: "Libro", fecha_prestamo: tuple[int, int, int]
+    ):
+        self._usuario = usuario
+        self._libro = libro
+        self._fecha_prestamo = fecha_prestamo
+        self._fecha_dev_estimada = self.cal_f_entrega(fecha_prestamo)
+        self._fecha_dev_real = None
+        self._devuelto = False
+        self._multa = 0
+        # Registrar préstamo
+        self._libro.prestar()
+        self._usuario.registrar_prestamo(self._libro.codigo)
 
-# Verificar si la fecha es mayor a la fecha inicial(Validar)
-def f_penal_v(actual, limite):
-    resultado = False
-    dia, mes, annio = actual
-    dia_l, mes_l, annio_l = limite
+    def devolver(self, fecha_real: tuple[int, int, int]):
+        if self._devuelto:
+            print("Este préstamo ya fue devuelto.")
+            return
 
-    if annio > annio_l:
-        resultado = True
-    elif annio == annio_l:
-        if mes > mes_l:
-            resultado = True
-        elif mes == mes_l:
-            if dia >= dia_l:
-                resultado = True
+        self._libro.devolver()
+        self._fecha_dev_real = fecha_real
 
-    return resultado
-
-
-# pasar todo a dias
-def cal_mora(fecha):
-    dia, mes, annio = fecha
-    total_dias = 0
-    for anio in range(1, annio):
-        if es_bisiesto(anio):
-            total_dias += 366
-        else:
-            total_dias += 365
-
-    for mes_ in range(1, mes):
-        total_dias += dias_en_mes(mes_, annio)
-
-    total_dias += dia
-
-    return total_dias
-
-
-# funciones del menu
-def reg_usuario(usuarios):
-    dni = 0
-    try:
-        while True:
-            dni = int(input("Ingrese el dni del cliente: "))
-            if dni not in usuarios and len(str(dni)) == 8:
-                print("DNI asignado correctamente")
-                break
-            elif dni in usuarios:
-                print(f"Persona ya registrada con el dni:{dni}")
-            else:
-                print("DNI NO VALIDO")
-        while True:
-            nombre = input("Nombre(s) de la persona: ")
-            if ver_nombre(nombre):
-                print("Nombre no valido")
-            else:
-                print("Nombre(s) asignado correctamente")
-                break
-        while True:
-            apellidos = input("Apellido(s) de la persona: ")
-            if ver_nombre(apellidos):
-                print("Apellido no valido")
-            else:
-                print("Apellido(s) asignado correctamente")
-                break
-        usuarios.update({dni: [nombre.title(), apellidos.title(), [], 0, 0]})
-
-    except ValueError:
-        print("ERROR: VALOR INGRESADO NO VALIDO")
-
-
-def reg_libro(libros):
-    codigo = 0
-    try:
-        while True:
-            codigo = int(input("Ingrese el codigo del libro: "))
-            if codigo in libros:
-                print("Codigo de libro ya asignado")
-            else:
-                print("Codigo asignado correctamente")
-                break
-
-        nombre = input("Nombre del libro: ")
-
-        while True:
-            autor = input("Nombre del autor: ")
-            if ver_nombre(autor):
-                print("Nombre no valido")
-            else:
-                print("Autor asignado correctamente")
-                break
-        anio = int(input("año de publicacion: "))
-        libros.update(
-            {
-                codigo: [
-                    nombre.title(),
-                    autor.title(),
-                    anio,
-                    "disponible",
-                    [0, 0, 0],
-                    [0, 0, 0],
-                    0,
-                ]
-            }
-        )
-        print(f"Libro ID:{codigo} ha sido registrado con exito")
-    except ValueError:
-        print("ERROR: VALOR INGRESADO NO VALIDO")
-
-
-def pres_lib(usuarios, libros):
-    try:
-        while True and len(usuarios) > 0:
-            print("Sistema de prestamo de libros:")
-            dni = int(input("Ingrese el dni (0 = salir): "))
-            if dni in usuarios:
-                print("DNI VALIDO:")
-                if len(usuarios[dni][2]) < 3:
-                    usu_entrada = input(
-                        "Desea ver todos los libros disponibles?(S/N): "
-                    )
-                    if usu_entrada.upper() == "S":
-                        imprimir_libros(libros, 0, len(libros), 1)
-
-                    usu_entrada = int(input("Codigo del libro a prestar: "))
-
-                    if usu_entrada in libros:
-                        if libros[usu_entrada][3] == "disponible":
-                            while True:
-                                print("Ingreso de fecha de prestamo:")
-                                dia = int(input("Dia: "))
-                                mes = int(input("Mes:"))
-                                annio = int(input("Año:"))
-                                if fecha_valida(dia, mes, annio):
-                                    break
-                                else:
-                                    print("Fecha invalida")
-                            libros[usu_entrada][4][0] = dia
-                            libros[usu_entrada][4][1] = mes
-                            libros[usu_entrada][4][2] = annio
-                            libros[usu_entrada][3] = "prestado"
-                            usuarios[dni][4] += 1  # cant_prestamos
-                            usuarios[dni][2].append(usu_entrada)
-                            print("-----------------Resumen-----------------")
-                            print(f"        {dia} / {mes} / {annio}")
-                            print(f"        DNI:{dni}")
-                            print(f"        NOMBRE:{usuarios[dni][0]}")
-                            print(f"        APELLIDOS:{usuarios[dni][1]}")
-                            print(f"        CODIGO:{usu_entrada}")
-                            print("------------------------------------------")
-                            print("Prestamo realizado con exito")
-                            dia, mes, annio = cal_f_entrega([dia, mes, annio])
-                            libros[usu_entrada][5][0] = dia
-                            libros[usu_entrada][5][1] = mes
-                            libros[usu_entrada][5][2] = annio
-                            print(f"fecha de devolucion estimada : {dia} {mes} {annio}")
-                        else:
-                            print("no disponible")
-                    else:
-                        print("El codigo ingresado no existe")
-                else:
-                    print("Maximo de 3 prestamos por persona")
-            elif dni == 0:
-                break
-            else:
-                print("No hay dni registrado")
-
-    except ValueError:
-        print("Error de ingreso de datos")
-
-
-def devol_lib(usuarios, libros, reporte3_list):
-    try:
-
-        while True and len(usuarios) > 0:
-            print("Sistema de devolucion de libros:")
-            dni = int(
-                input("Ingrese el DNI de la persona que va a devolver (0 = salir): ")
+        # Calcular mora
+        if self.f_penal_v(fecha_real, self._fecha_dev_estimada):
+            dias_mora = self.cal_mora(fecha_real) - self.cal_mora(
+                self._fecha_dev_estimada
             )
+            self._multa = dias_mora * 10
+            self._usuario.devolver_libro(self._libro.codigo, dias_mora)
+            print(
+                f"Libro '{self._libro.titulo}' devuelto con {dias_mora} días de retraso. Multa: S/.{self._multa}"
+            )
+        else:
+            self._usuario.devolver_libro(self._libro.codigo, 0)
+            print(f"Libro '{self._libro.titulo}' devuelto a tiempo. ¡Gracias!")
 
-            if dni in usuarios:
-                if len(usuarios[dni][2]) == 0:
-                    print("Este usuario no tiene libros prestados.")
-                    continue
+        self._devuelto = True
 
-                print("DNI válido.")
-                print(f"Libros prestados por {usuarios[dni][0]} {usuarios[dni][1]}:")
-
-                for cod in usuarios[dni][2]:
-                    print(
-                        f"  Código: {cod} | Título: {libros[cod][0]} | Autor: {libros[cod][1]}"
-                    )
-
-                usu_entrada = int(input("Ingrese el código del libro a devolver: "))
-
-                if usu_entrada in usuarios[dni][2]:
-                    while True:
-                        print("Ingrese la fecha de devolución:")
-                        dia = int(input("Dia: "))
-                        mes = int(input("Mes: "))
-                        annio = int(input("Año: "))
-                        if fecha_valida(dia, mes, annio) and f_penal_v(
-                            [dia, mes, annio], libros[usu_entrada][4]
-                        ):
-                            break
-                        else:
-                            print("Fecha invalida")
-                    #  fecha devolucion - fecha prestamo - 7 dias de inicio
-                    dias_mora = (
-                        cal_mora([dia, mes, annio])
-                        - cal_mora(libros[usu_entrada][4])
-                        - 7
-                    )
-
-                    # diferencia de dias desde la devolucion y el prestamo
-                    reporte3_list.append(
-                        max(
-                            0,
-                            (
-                                cal_mora([dia, mes, annio])
-                                - cal_mora(libros[usu_entrada][4])
-                                - 7
-                            ),
-                        )
-                    )
-                    mora = max(0, dias_mora)
-                    mora = mora * 10
-                    usuarios[dni][3] += mora
-                    # actualizar libro
-                    libros[usu_entrada][3] = "disponible"
-                    libros[usu_entrada][4] = [0, 0, 0]  # limpiar fecha
-
-                    # eliminar de la lista del usuario
-                    usuarios[dni][2].remove(usu_entrada)
-
-                    print("-----------------Resumen-----------------")
-                    print(f"        {dia} / {mes} / {annio}")
-                    print(f"        DNI: {dni}")
-                    print(f"        NOMBRE: {usuarios[dni][0]}")
-                    print(f"        APELLIDOS: {usuarios[dni][1]}")
-                    print(f"        CODIGO DEVUELTO: {usu_entrada}")
-                    print(f"        TITULO: {libros[usu_entrada][0]}")
-                    print("------------------------------------------")
-                    print("Devolución realizada con éxito")
-
-                else:
-                    print("El código ingresado no pertenece a este usuario.")
-
-            elif dni == 0:
-                break
-            else:
-                print("No hay DNI registrado")
-
-    except ValueError:
-        print("Error de ingreso de datos")
+    def mostrar_info(self):
+        print("===== DETALLE DEL PRÉSTAMO =====")
+        print(f"Usuario: {self._usuario._nombre} {self._usuario._apellidos}")
+        print(f"Libro: {self._libro.titulo}")
+        print(f"Fecha de préstamo: {self._fecha_prestamo}")
+        print(f"Fecha estimada de devolución: {self._fecha_dev_estimada}")
+        if self._devuelto:
+            print(f"Fecha real de devolución: {self._fecha_dev_real}")
+            print(f"Multa: S/.{self._multa}")
+        else:
+            print("Estado: EN CURSO")
 
 
-def cal_penalidad():
-    try:
-        while True:
-            print("Bienvenido al simulador de calculo de penalidad:")
-            user = input("Desea estimar la mora (S: salir /cualquier tecla :continuar)")
-            if user.upper() == "S":
-                break
-            while True:
-                print("Ingrese la fecha actual a tomar como inicio:")
-                dia_actual = int(input("Dia: "))
-                mes_actual = int(input("Mes: "))
-                annio_actual = int(input("Año: "))
-                if fecha_valida(dia_actual, mes_actual, annio_actual):
-                    break
-                else:
-                    print("Fecha no valida")
-            print("Recuerde : la mora empieza luego de 7 dias de inicio")
-            while True:
-                print("Ingrese la fecha de devolucion:")
-                dia_dev = int(input("Dia: "))
-                mes_dev = int(input("Mes: "))
-                annio_dev = int(input("Año: "))
-                if fecha_valida(dia_actual, mes_actual, annio_actual):
-                    break
-                else:
-                    print("Fecha no valida")
+class Biblioteca:
+    def __init__(self):
+        self._usuarios: dict[int, Usuario] = {}
+        self._libros: dict[int, Libro] = {}
+        self._prestamos: list[Prestamo] = []
 
-            if f_penal_v(
-                [dia_actual, mes_actual, annio_actual], [dia_dev, mes_dev, annio_dev]
+    @property
+    def usuarios(self) -> dict[int, Usuario]:
+        return self._usuarios.copy()
+
+    @property
+    def libros(self) -> dict[int, Libro]:
+        return self._libros.copy()
+
+    @property
+    def prestamos(self) -> list[Prestamo]:
+        return self._prestamos.copy()
+
+    def agregar_usuario(self, dni: int, nombre: str, apellidos: str):
+        if dni in self._usuarios:
+            print("El usuario ya está registrado.")
+            return
+        self._usuarios[dni] = Usuario(dni, nombre, apellidos)
+        print(f"Usuario '{nombre} {apellidos}' agregado correctamente.")
+
+    def agregar_libro(self, codigo: int, titulo: str, autor: str, anio_pub: int):
+        if codigo in self._libros:
+            print("El libro ya existe en la biblioteca.")
+            return
+        self._libros[codigo] = Libro(codigo, titulo, autor, anio_pub)
+        print(f"Libro '{titulo}' agregado al catálogo.")
+
+    def registrar_prestamo(
+        self, dni_usuario: int, codigo_libro: int, fecha_prestamo: tuple[int, int, int]
+    ):
+        if dni_usuario not in self._usuarios:
+            print("Usuario no encontrado.")
+            return
+        if codigo_libro not in self._libros:
+            print("Libro no encontrado.")
+            return
+
+        usuario = self._usuarios[dni_usuario]
+        libro = self._libros[codigo_libro]
+
+        if libro.estado != "disponible":
+            print("El libro no está disponible actualmente.")
+            return
+
+        prestamo = Prestamo(usuario, libro, fecha_prestamo)
+        self._prestamos.append(prestamo)
+        print(
+            f"Préstamo registrado: '{libro.titulo}' para {usuario._nombre} ({usuario._dni})"
+        )
+        print(f"Fecha estimada de devolución: {prestamo._fecha_dev_estimada}")
+
+    def devolver_libro(
+        self, dni_usuario: int, codigo_libro: int, fecha_real: tuple[int, int, int]
+    ):
+        for prestamo in self._prestamos:
+            if (
+                prestamo._usuario._dni == dni_usuario
+                and prestamo._libro.codigo == codigo_libro
+                and not prestamo._devuelto
             ):
-                print("No valido , volver a ingresar fechas")
-                continue
-            else:
-                dias_mora = (
-                    cal_mora([dia_dev, mes_dev, annio_dev])
-                    - cal_mora([dia_actual, mes_actual, annio_actual])
-                    - 7
-                )
-                mora = max(0, dias_mora)
-                mora = mora * 10
-                print(
-                    f"Mora estimada luego del {dia_actual}/ {mes_actual}/{annio_actual} de {max(0, dias_mora)} dias es de : S/.{mora}"
-                )
-    except ValueError:
-        print("ERROR")
-
-
-def ver_reports(usuarios, libros, reporte3_list):
-    while True:
-        menu_reportes()
-        try:
-            usu_entrada = int(input("Eleccion del usuario:  "))
-            match usu_entrada:
-                case 1:
-                    print("REPORTE:Libros más prestados (popularidad de títulos)")
-                    reporte1(libros)
-                case 2:
-                    print("Usuarios con más préstamos (eficiencia de lectura).")
-                    reporte2(usuarios)
-                case 3:
-                    reporte3(reporte3_list)
-                case 4:
-                    reporte4(usuarios)
-                case 5:
-                    reporte5(libros)
-                case 6:
-                    reporte6(libros)
-                case 7:
-                    break
-        except ValueError:
-            print("ERROR : VALOR INGRESADO NO ES UN NUMERO")
-
-
-def menu(libros, usuarios, reporte3_list):
-    while True:
-        f_mostrar_menu()
-        try:
-            usu_entrada = int(input("Eleccion del usuario:  "))
-            match usu_entrada:
-                case 1:
-                    reg_usuario(usuarios)
-                case 2:
-                    reg_libro(libros)
-                case 3:
-                    pres_lib(usuarios, libros)
-                case 4:
-                    devol_lib(usuarios, libros, reporte3_list)
-                case 5:
-                    cal_penalidad()
-                case 6:
-                    ver_reports(usuarios, libros, reporte3_list)
-                case 7:
-                    print("Fin del Programa")
-                    break
-        except ValueError:
-            print("ERROR : VALOR INGRESADO NO ES UN NUMERO")
-
+                prestamo.devolver(fecha_real)
+                return
+        print("No se encontró un préstamo activo con esos datos.")
 
 def main():
-    # Libros {"codigo":["nombre","autor","año","estado(disponible/prestado)",["dia","mes","año"],["dia_l","mes_l","año_l"],cant_prestamos]}
-    libros = {
-        101: [
-            "Cien Años de Soledad",
-            "Gabriel Garcia Marquez",
-            1967,
-            "disponible",
-            [0, 0, 0],
-            [0, 0, 0],
-            0,
-        ],
-        102: [
-            "El Gran Gatsby",
-            "F. Scott Fitzgerald",
-            1925,
-            "disponible",
-            [0, 0, 0],
-            [0, 0, 0],
-            0,
-        ],
-        103: ["1984", "George Orwell", 1949, "disponible", [0, 0, 0], [0, 0, 0], 0],
-        104: [
-            "Crimen y Castigo",
-            "Fyodor Dostoevsky",
-            1866,
-            "disponible",
-            [0, 0, 0],
-            [0, 0, 0],
-            0,
-        ],
-        105: [
-            "Don Quijote",
-            "Miguel De Cervantes",
-            1605,
-            "disponible",
-            [0, 0, 0],
-            [0, 0, 0],
-            0,
-        ],
-        106: [
-            "Moby Dick",
-            "Herman Melville",
-            1851,
-            "disponible",
-            [0, 0, 0],
-            [0, 0, 0],
-            0,
-        ],
-        107: [
-            "El Principito",
-            "Antoine De Saint-Exupéry",
-            1943,
-            "disponible",
-            [0, 0, 0],
-            [0, 0, 0],
-            0,
-        ],
-        108: [
-            "Un Mundo Feliz",
-            "Aldous Huxley",
-            1932,
-            "disponible",
-            [0, 0, 0],
-            [0, 0, 0],
-            0,
-        ],
-        109: ["Odisea", "Homero", 700, "disponible", [0, 0, 0], [0, 0, 0], 0],
-        110: ["La Iliada", "Homero", 750, "disponible", [0, 0, 0], [0, 0, 0], 0],
-    }
-    # Usuarios {"DNI": ["nombre","Apellidos",[lista de libros prestados x codigo],deuda,c_prestamos]}
-    usuarios = {
-        12345678: ["Ana", "López Pérez", [], 0, 0],
-        23456789: ["Carlos", "García Ruíz", [], 0, 0],
-        34567890: ["Elena", "Martínez Solís", [], 0, 0],
-        45678901: ["David", "Sánchez Soto", [], 0, 0],
-        56789012: ["Sofía", "Herrera Castro", [], 0, 0],
-        67890123: ["Jorge", "Vásquez Mendoza", [], 0, 0],
-        78901234: ["María", "Torres Díaz", [], 0, 0],
-        89012345: ["Ricardo", "Huamán Reyes", [], 0, 0],
-        90123456: ["Laura", "Ríos Flores", [], 0, 0],
-        70479564: ["Juan", "Espinoza Ramos", [], 0, 0],
-    }
-    # reportes_list [dias por diferencia entre fecha prestamo y entrega ]
-    reporte3_list = []
-    menu(libros, usuarios, reporte3_list)
+ # Crear la biblioteca
+    biblioteca = Biblioteca()
 
+    # Agregar usuarios
+    biblioteca.agregar_usuario(12345678, "Juan", "Pérez")
+    biblioteca.agregar_usuario(87654321, "María", "López")
 
+    # Agregar libros
+    biblioteca.agregar_libro(1, "Cien años de soledad", "Gabriel García Márquez", 1967)
+    biblioteca.agregar_libro(2, "El Principito", "Antoine de Saint-Exupéry", 1943)
+    biblioteca.agregar_libro(3, "1984", "George Orwell", 1949)
+
+    # Registrar préstamos
+    print("\n--- Registrar préstamos ---")
+    biblioteca.registrar_prestamo(12345678, 1, (1, 11, 2025))
+    biblioteca.registrar_prestamo(87654321, 2, (2, 11, 2025))
+
+    # Mostrar estado de libros
+    print("\n--- Estado de los libros ---")
+    for libro in biblioteca._libros.values():
+        libro.mostrar_info()
+
+    # Devolver libros a tiempo
+    print("\n--- Devolución a tiempo ---")
+    biblioteca.devolver_libro(12345678, 1, (8, 11, 2025))  # devuelve justo 7 días después
+
+    # Devolver con retraso
+    print("\n--- Devolución con retraso ---")
+    biblioteca.devolver_libro(87654321, 2, (15, 11, 2025))  # 6 días tarde
+
+    # Mostrar información de usuarios
+    print("\n--- Información de usuarios ---")
+    for usuario in biblioteca._usuarios.values():
+        usuario.mostrar_info()
+
+    # Mostrar detalle de préstamos
+    print("\n--- Detalle de préstamos ---")
+    for prestamo in biblioteca._prestamos:
+        prestamo.mostrar_info()
+        print()
 main()
