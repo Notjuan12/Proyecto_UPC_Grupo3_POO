@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import pandas as pd
 
 
 class Persona(ABC):
@@ -43,11 +44,27 @@ class Usuario(Persona):
     def deuda(self):
         return self._deuda
 
+    @libros_prestados.setter
+    def libros_prestados(self, lista_codigos):
+        self._libros_prestados = lista_codigos
+
+    @deuda.setter
+    def deuda(self, n_deuda):
+        self._deuda = n_deuda
+
+    @cant_prestamos.setter
+    def cant_prestamos(self, cantidad):
+        self._cant_prestamos = cantidad
+
     def registrar_prestamo(self, codigo_libro: int):
-        """Registra un nuevo prestamo (máximo 3 libros):"""
-        if len(self._libros_prestados) >= 3:
-            print("Solo es maximo de 3 préstamos por usuario.")
+        if codigo_libro in self._libros_prestados:
+            print("Ese libro ya está prestado por este usuario.")
             return
+
+        if len(self._libros_prestados) >= 3:
+            print("Solo es máximo de 3 préstamos por usuario.")
+            return
+
         self._libros_prestados.append(codigo_libro)
         self._cant_prestamos += 1
         print(f"Libro con codigo {codigo_libro} registrado correctamente.")
@@ -102,6 +119,14 @@ class Libro:
     @property
     def contador_pres(self):
         return self._contador_pres
+
+    @estado.setter
+    def estado(self, n_estado):
+        self._estado = n_estado
+
+    @contador_pres.setter
+    def contador_pres(self, cont):
+        self._contador_pres = cont
 
     # metodos
     def prestar(
@@ -222,6 +247,10 @@ class Prestamo:
     def fecha_dev_estimada(self):
         return self._fecha_dev_estimada
 
+    @property
+    def multa(self):
+        return self._multa
+
     @fecha_dev_real.setter
     def fecha_dev_real(self, fecha_real: tuple[int, int, int]):
         self._fecha_dev_real = fecha_real
@@ -313,6 +342,7 @@ class Biblioteca:
         return True
 
     def __init__(self):
+
         self._usuarios: dict[int, Usuario] = {}
         self._libros: dict[int, Libro] = {}
         self._prestamos: list[Prestamo] = []
@@ -721,6 +751,11 @@ class Biblioteca:
             self.usuarios.values(), key=obtener_prestamos, reverse=True
         )
         limite = 0
+        print(
+            f"{"dni":^10}{"nombre":^30}",
+            f"{"apellidos":^15}{"deuda":^7}{"cant_prestamos":^12}",
+            sep="",
+        )
         for user in personas_ordenadas:
             if limite >= 20:  # máximo 20 libros
                 break
@@ -1066,6 +1101,167 @@ class Biblioteca:
             except ValueError:
                 print("ERROR : VALOR INGRESADO NO ES UN NUMERO")
 
+    def guardar_archivo(self):
+        def guardar_usuarios():
+            filas = []
+            for dni, user in self._usuarios.items():
+                filas.append(
+                    [
+                        dni,
+                        user.nombre,
+                        user.apellidos,
+                        str(user.libros_prestados),
+                        user.deuda,
+                        user.cant_prestamos,
+                    ]
+                )
+
+            df = pd.DataFrame(
+                filas,
+                columns=[
+                    "DNI",
+                    "Nombre",
+                    "Apellido",
+                    "Libros prestados",
+                    "Deuda",
+                    "Cantidad de prestamos",
+                ],
+            )
+            df.to_csv("usuarios.csv", index=False)
+
+        def guardar_libros():
+            filas = []
+            for codigo, libro in self._libros.items():
+                filas.append(
+                    [
+                        codigo,
+                        libro.titulo,
+                        libro.autor,
+                        libro.anio_pub,
+                        libro.estado,
+                        libro.contador_pres,
+                    ]
+                )
+
+            df = pd.DataFrame(
+                filas,
+                columns=[
+                    "Codigo",
+                    "Nombre",
+                    "Autor",
+                    "Año de publicacion",
+                    "Estado",
+                    "Contador de prestamos",
+                ],
+            )
+            df.to_csv("libros.csv", index=False)
+
+        def guardar_prestamos():
+            filas = []
+            for prest in self._prestamos:
+                filas.append(
+                    [
+                        prest.usuario.dni,
+                        prest.libro.codigo,
+                        str(prest.fecha_prestamo),
+                        str(prest.fecha_dev_estimada),
+                        str(prest.fecha_dev_real),
+                        prest.devuelto,
+                    ]
+                )
+
+            df = pd.DataFrame(
+                filas,
+                columns=[
+                    "DNI",
+                    "Codigo",
+                    "Fecha prestamo",
+                    "Fecha estimada",
+                    "Fecha real",
+                    "Devuelto",
+                ],
+            )
+            df.to_csv("prestamos.csv", index=False)
+
+        guardar_usuarios()
+        guardar_libros()
+        guardar_prestamos()
+        print("Datos guardados correctamente en CSV.")
+
+    def cargar_archivo(self):
+        def str_a_tupla(texto):
+            texto = texto.replace("(", "").replace(")", "")
+            partes = texto.split(",")
+            if len(partes) != 3:
+                return None
+            return (int(partes[0]), int(partes[1]), int(partes[2]))
+
+        def cargar_usuarios():
+            df = pd.read_csv("usuarios.csv")
+            for i in df.index:
+                dni = int(df.loc[i, "DNI"])
+                nom = df.loc[i, "Nombre"]
+                ape = df.loc[i, "Apellido"]
+
+                user = Usuario(dni, nom, ape)
+
+                lista = df.loc[i, "Libros prestados"]
+                lista = lista.replace("[", "").replace("]", "").strip()
+
+                codigos = []
+                if lista != "":
+                    partes = lista.split(",")
+                    for p in partes:
+                        codigos.append(int(p))
+
+                user._libros_prestados = codigos
+                user._deuda = int(df.loc[i, "Deuda"])
+                user._cant_prestamos = int(df.loc[i, "Cantidad de prestamos"])
+
+                self._usuarios[dni] = user
+
+        def cargar_libros():
+            df = pd.read_csv("libros.csv")
+            for i in df.index:
+                codigo = int(df.loc[i, "Codigo"])
+                libro = Libro(
+                    codigo,
+                    df.loc[i, "Nombre"],
+                    df.loc[i, "Autor"],
+                    int(df.loc[i, "Año de publicacion"]),
+                )
+                libro.estado = df.loc[i, "Estado"]
+                libro.contador_pres = int(df.loc[i, "Contador de prestamos"])
+                self._libros[codigo] = libro
+
+        def cargar_prestamos():
+            df = pd.read_csv("prestamos.csv")
+            for i in df.index:
+                dni = int(df.loc[i, "DNI"])
+                codigo = int(df.loc[i, "Codigo"])
+
+                user = self._usuarios[dni]
+                libro = self._libros[codigo]
+
+                f_p = str_a_tupla(df.loc[i, "Fecha prestamo"])
+                prest = Prestamo(user, libro, f_p)
+                print(df.loc[i, "Fecha estimada"])
+                prest._fecha_dev_estimada = str_a_tupla(df.loc[i, "Fecha estimada"])
+
+                real = df.loc[i, "Fecha real"]
+                real = str(real)
+                if real != "None":
+                    prest._fecha_dev_real = str_a_tupla(real)
+
+                prest._devuelto = bool(df.loc[i, "Devuelto"])
+
+                self._prestamos.append(prest)
+
+        cargar_usuarios()
+        cargar_libros()
+        cargar_prestamos()
+        print("Datos cargados correctamente desde CSV.")
+
 
 def main():
     biblioteca = Biblioteca()
@@ -1088,9 +1284,9 @@ def main():
                 case 6:
                     biblioteca.reportes()
                 case 7:
-                    pass
+                    biblioteca.cargar_archivo()
                 case 8:
-                    pass
+                    biblioteca.guardar_archivo()
                 case 9:
                     print("Fin del Programa")
                     break
