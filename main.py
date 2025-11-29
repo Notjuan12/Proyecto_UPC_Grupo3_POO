@@ -28,7 +28,7 @@ class Usuario(Persona):
 
     @property
     def libros_prestados(self):
-        return self._libros_prestados.copy()
+        return self._libros_prestados
 
     @property
     def cant_prestamos(self):
@@ -58,17 +58,29 @@ class Usuario(Persona):
     def cant_prestamos(self, cantidad):
         self._cant_prestamos = cantidad
 
+    @dni.setter
+    def dni(self, dn):
+        self._dni = dn
+
+    @nombre.setter
+    def nombre(self, nom):
+        self._nombre = nom
+
+    @apellidos.setter
+    def apellidos(self, apell):
+        self._apellidos = apell
+
     def registrar_prestamo(self, codigo_libro: int):
         if codigo_libro in self._libros_prestados:
             print("Ese libro ya está prestado por este usuario.")
             return
 
-        if len(self._libros_prestados) >= 3:
+        if len(self.libros_prestados) >= 3:
             print("Solo es máximo de 3 préstamos por usuario.")
             return
 
         self._libros_prestados.append(codigo_libro)
-        self._cant_prestamos += 1
+        self.cant_prestamos += 1
         print(f"Libro con codigo {codigo_libro} registrado correctamente.")
 
     def devolver_libro(self, codigo_libro: int, dias_mora: int = 0):
@@ -76,16 +88,16 @@ class Usuario(Persona):
         if codigo_libro in self._libros_prestados:
             self._libros_prestados.remove(codigo_libro)
             multa = dias_mora * 10
-            self._deuda += multa
+            self.deuda += multa
         else:
             print("ALERTA: Este libro no está registrado en sus préstamos.")
 
     def mostrar_info(self):
         """=====INFORMACION GENERAL DEL USUARIO====="""
-        print(f"DNI: {self._dni}")
-        print(f"Nombre: {self._nombre} {self._apellidos}")
-        print(f"Libros prestados actualmente: {len(self._libros_prestados)}")
-        print(f"Deuda: S/.{self._deuda}")
+        print(f"DNI: {self.dni}")
+        print(f"Nombre: {self.nombre} {self.apellidos}")
+        print(f"Libros prestados actualmente: {len(self.libros_prestados)}")
+        print(f"Deuda: S/.{self.deuda}")
 
 
 class Libro:
@@ -130,20 +142,40 @@ class Libro:
     def contador_pres(self, cont):
         self._contador_pres = cont
 
+    @codigo.setter
+    def codigo(self, cod):
+        self._codigo = cod
+
+    @titulo.setter
+    def titulo(self, lib):
+        self._titulo = lib
+
+    @autor.setter
+    def autor(self, aut):
+        self._autor = aut
+
+    @anio_pub.setter
+    def anio_pub(self, anio):
+        self._anio_pub = anio
+
+    @contador_pres.setter
+    def contador_pres(self, cont):
+        self._contador_pres = cont
+
     # metodos
     def prestar(
         self,
     ):
-        self._estado = "prestado"
-        self._contador_pres += 1
+        self.estado = "prestado"
+        self.contador_pres += 1
 
     def devolver(self):
-        self._estado = "disponible"
+        self.estado = "disponible"
 
     def mostrar_info(self):
         print(
-            f"{self._codigo:^10}{self._titulo:^30}",
-            f"{self._autor:^15}{self._anio_pub:^7}{self._estado:^12}",
+            f"{self.codigo:^10}{self.titulo:^30}",
+            f"{self.autor:^15}{self.anio_pub:^7}{self.estado:^12}",
             sep="",
         )
 
@@ -257,39 +289,51 @@ class Prestamo:
     def fecha_dev_real(self, fecha_real: tuple[int, int, int]):
         self._fecha_dev_real = fecha_real
 
+    @fecha_dev_estimada.setter
+    def fecha_dev_estimada(self, dev):
+        self._fecha_dev_estimada = dev
+
+    @multa.setter
+    def multa(self, mul):
+        self._multa = mul
+
+    @devuelto.setter
+    def devuelto(self, dev):
+        self._devuelto = dev
+
     def devolver(self, fecha_real: tuple[int, int, int]):
         if self._devuelto:
             print("Este préstamo ya fue devuelto.")
             return
 
-        self._libro.devolver()
-        self._fecha_dev_real = fecha_real
+        self.libro.devolver()
+        self.fecha_dev_real = fecha_real
 
         # Calcular mora
-        if self.f_penal_v(fecha_real, self._fecha_dev_estimada):
+        if self.f_penal_v(fecha_real, self.fecha_dev_estimada):
             dias_mora = self.cal_mora(fecha_real) - self.cal_mora(
-                self._fecha_dev_estimada
+                self.fecha_dev_estimada
             )
-            self._multa = dias_mora * 10
-            self._usuario.devolver_libro(self._libro.codigo, dias_mora)
+            self.multa = dias_mora * 10
+            self.usuario.devolver_libro(self.libro.codigo, dias_mora)
             print(
-                f"Libro '{self._libro.titulo}' devuelto con {dias_mora} días de retraso. Multa: S/.{self._multa}"
+                f"Libro '{self.libro.titulo}' devuelto con {dias_mora} días de retraso. Multa: S/.{self.multa}"
             )
         else:
-            self._usuario.devolver_libro(self._libro.codigo, 0)
-            print(f"Libro '{self._libro.titulo}' devuelto a tiempo. ¡Gracias!")
+            self._usuario.devolver_libro(self.libro.codigo, 0)
+            print(f"Libro '{self.libro.titulo}' devuelto a tiempo. ¡Gracias!")
 
-        self._devuelto = True
+        self.devuelto = True
 
     def mostrar_info(self):
         print("===== DETALLE DEL PRÉSTAMO =====")
-        print(f"Usuario: {self._usuario._nombre} {self._usuario._apellidos}")
-        print(f"Libro: {self._libro.titulo}")
-        print(f"Fecha de préstamo: {self._fecha_prestamo}")
-        print(f"Fecha estimada de devolución: {self._fecha_dev_estimada}")
-        if self._devuelto:
-            print(f"Fecha real de devolución: {self._fecha_dev_real}")
-            print(f"Multa: S/.{self._multa}")
+        print(f"Usuario: {self.usuario.nombre} {self.usuario.apellidos}")
+        print(f"Libro: {self.libro.titulo}")
+        print(f"Fecha de préstamo: {self.fecha_prestamo}")
+        print(f"Fecha estimada de devolución: {self.fecha_dev_estimada}")
+        if self.devuelto:
+            print(f"Fecha real de devolución: {self.fecha_dev_real}")
+            print(f"Multa: S/.{self.multa}")
         else:
             print("Estado: EN CURSO")
 
@@ -351,15 +395,15 @@ class Biblioteca:
 
     @property
     def usuarios(self) -> dict[int, Usuario]:
-        return self._usuarios.copy()
+        return self._usuarios
 
     @property
     def libros(self) -> dict[int, Libro]:
-        return self._libros.copy()
+        return self._libros
 
     @property
     def prestamos(self) -> list[Prestamo]:
-        return self._prestamos.copy()
+        return self._prestamos
 
     # agregacion de usuarios y comprobaciones
     def ver_nombre(self, n_evaluar):
@@ -446,7 +490,7 @@ class Biblioteca:
                 dni = int(input("Ingrese el dni (0 = salir): "))
                 if dni in self.usuarios:
                     print("DNI VALIDO:")
-                    if len(self.usuarios[dni]._libros_prestados) < 3:
+                    if len(self.usuarios[dni].libros_prestados) < 3:
                         print(
                             "CODIGO                NOMBRE                "
                             " AUTOR             AÑO             ESTADO",
@@ -471,15 +515,15 @@ class Biblioteca:
             print("Error de ingreso de datos")
 
     def registrar_prestamo(self, dni_usuario: int, codigo_libro: int):
-        if dni_usuario not in self._usuarios:
+        if dni_usuario not in self.usuarios:
             print("Usuario no encontrado.")
             return
-        if codigo_libro not in self._libros:
+        if codigo_libro not in self.libros:
             print("Libro no encontrado.")
             return
 
-        usuario = self._usuarios[dni_usuario]
-        libro = self._libros[codigo_libro]
+        usuario = self.usuarios[dni_usuario]
+        libro = self.libros[codigo_libro]
 
         if libro.estado != "disponible":
             print("El libro no está disponible actualmente.")
@@ -503,24 +547,24 @@ class Biblioteca:
 
         if self.fecha_valida(dia, mes, annio):
             prestamo = Prestamo(usuario, libro, fecha_prestamo)
-            self._prestamos.append(prestamo)
+            self.prestamos.append(prestamo)
             print(
-                f"Préstamo registrado: '{libro.titulo}' para {usuario._nombre} ({usuario._dni})"
+                f"Préstamo registrado: '{libro.titulo}' para {usuario.nombre} ({usuario.dni})"
             )
             print(f"Fecha estimada de devolución: {prestamo.fecha_dev_estimada}")
 
     # devoluciones
     def menu_devolucion(self):
         try:
-            while True and len(self._usuarios) > 0:
+            while True and len(self.usuarios) > 0:
                 print("Sistema de devolución de libros:")
                 dni = int(input("Ingrese el DNI del usuario (0 = salir): "))
 
                 if dni == 0:
                     break
 
-                if dni in self._usuarios.keys():
-                    usuario = self._usuarios[dni]
+                if dni in self.usuarios.keys():
+                    usuario = self.usuarios[dni]
 
                     if len(usuario.libros_prestados) == 0:
                         print("Este usuario no tiene libros prestados.")
@@ -531,7 +575,7 @@ class Biblioteca:
 
                     print("\nLibros actualmente prestados:")
                     for codigo in usuario.libros_prestados:
-                        self._libros[codigo].mostrar_info()
+                        self.libros[codigo].mostrar_info()
 
                     codigo_libro = int(
                         input("\nIngrese el código del libro a devolver: ")
@@ -543,7 +587,7 @@ class Biblioteca:
 
                     # Buscar préstamo activo
                     prestamo_activo = None
-                    for prest in self._prestamos:
+                    for prest in self.prestamos:
                         if (
                             prest.usuario.dni == dni
                             and prest.libro.codigo == codigo_libro
@@ -569,7 +613,9 @@ class Biblioteca:
                         break
 
                     # Validar que la devolución no sea antes del préstamo
-                    if not self.f_penal_v(fecha_real, prestamo_activo.fecha_prestamo):
+                    if self.cal_mora(fecha_real) < self.cal_mora(
+                        prestamo_activo.fecha_prestamo
+                    ):
                         print(
                             "ERROR: La fecha de devolución no puede ser anterior a la fecha de préstamo."
                         )
@@ -596,7 +642,7 @@ class Biblioteca:
     ):
         for prestamo in self._prestamos:
             if (
-                prestamo.usuario._dni == dni_usuario
+                prestamo.usuario.dni == dni_usuario
                 and prestamo.libro.codigo == codigo_libro
                 and not prestamo.devuelto
             ):
@@ -629,7 +675,7 @@ class Biblioteca:
                     dia_dev = int(input("Dia: "))
                     mes_dev = int(input("Mes: "))
                     annio_dev = int(input("Año: "))
-                    if self.fecha_valida(dia_actual, mes_actual, annio_actual):
+                    if self.fecha_valida(dia_dev, mes_dev, annio_dev):
                         break
                     else:
                         print("Fecha no valida")
@@ -845,7 +891,7 @@ class Biblioteca:
         total_dias = 0
         total_prestamos = 0
 
-        for prestamo in self._prestamos:
+        for prestamo in self.prestamos:
 
             if not prestamo.devuelto:
                 continue
@@ -994,7 +1040,6 @@ class Biblioteca:
             )
             aux_dis, aux_pres = 0, 0
             for i, libro in self.libros.items():
-                print(libro.estado)
                 if libro.estado == "disponible":
                     aux_dis += 1
                 else:
@@ -1323,11 +1368,11 @@ class Biblioteca:
                     for p in partes:
                         codigos.append(int(p))
 
-                user._libros_prestados = codigos
-                user._deuda = int(df.loc[i, "Deuda"])
-                user._cant_prestamos = int(df.loc[i, "Cantidad de prestamos"])
+                user.libros_prestados = codigos
+                user.deuda = int(df.loc[i, "Deuda"])
+                user.cant_prestamos = int(df.loc[i, "Cantidad de prestamos"])
 
-                self._usuarios[dni] = user
+                self.usuarios[dni] = user
 
         def cargar_libros():
             df = pd.read_csv("libros.csv")
@@ -1339,32 +1384,32 @@ class Biblioteca:
                     df.loc[i, "Autor"],
                     int(df.loc[i, "Año de publicacion"]),
                 )
-                libro._estado = df.loc[i, "Estado"]
-                libro._contador_pres = int(df.loc[i, "Contador de prestamos"])
-                self._libros[codigo] = libro
+                libro.estado = df.loc[i, "Estado"]
+                libro.contador_pres = int(df.loc[i, "Contador de prestamos"])
+                self.libros[codigo] = libro
 
         def cargar_prestamos():
             df = pd.read_csv("prestamos.csv")
             for i in df.index:
                 dni = int(df.loc[i, "DNI"])
                 codigo = int(df.loc[i, "Codigo"])
-                user = self._usuarios[dni]
-                libro = self._libros[codigo]
+                user = self.usuarios[dni]
+                libro = self.libros[codigo]
 
                 f_p = str_a_tupla(df.loc[i, "Fecha prestamo"])
                 prest = Prestamo(user, libro, f_p)
 
-                prest._fecha_dev_estimada = str_a_tupla(df.loc[i, "Fecha estimada"])
+                prest.fecha_dev_estimada = str_a_tupla(df.loc[i, "Fecha estimada"])
 
                 real = str(df.loc[i, "Fecha real"])
                 if real != "None":
-                    prest._fecha_dev_real = str_a_tupla(real)
+                    prest.fecha_dev_real = str_a_tupla(real)
 
                 multa = int(df.loc[i, "Multa"])
-                prest._multa = multa
+                prest.multa = multa
 
                 devuelto_bool = bool(df.loc[i, "Devuelto"])
-                prest._devuelto = devuelto_bool
+                prest.devuelto = devuelto_bool
 
                 if devuelto_bool:
                     libro.estado = "disponible"
@@ -1377,7 +1422,7 @@ class Biblioteca:
                     if user.cant_prestamos > 0:
                         user.cant_prestamos -= 1
 
-                self._prestamos.append(prest)
+                self.prestamos.append(prest)
 
         cargar_usuarios()
         cargar_libros()
