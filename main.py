@@ -1012,7 +1012,7 @@ class Biblioteca:
             limite += 1
 
         plt.bar(listu, listde)
-        plt.xlabel("Ususarios")
+        plt.xlabel("Usuarios")
         plt.ylabel("Recaudación por penalidad")
         plt.title("Recaudación por penalidades")
         plt.show()
@@ -1187,13 +1187,11 @@ class Biblioteca:
             x = recuentos.keys()
             y = recuentos.values()
             plt.bar(x, y, width=0.9, color="#4B7DF3")
-            plt.xlabel = "año de publicaciónn"
-            plt.ylabel = "cantidad"
-            plt.title = "Recuento de fechas de fublicación"
+            plt.xlabel("año de publicación")
+            plt.ylabel("cantidad")
+            plt.title("Recuento de fechas de fublicación")
             plt.show()
             plt.close()
-
-            input("Enter para continuar")
         except ZeroDivisionError:
             print(" " * 20, end="")
             print("Datos no disponibles")
@@ -1348,6 +1346,7 @@ class Biblioteca:
         while True:
             self.menu_reportes()
             try:
+                plt.close()
                 usu_entrada = int(input("Eleccion del usuario:  "))
                 match usu_entrada:
                     case 1:
