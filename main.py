@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from matplotlib import pyplot as plt
+import seaborn as sns
 import pandas as pd
 
 
@@ -26,7 +28,7 @@ class Usuario(Persona):
 
     @property
     def libros_prestados(self):
-        return self._libros_prestados.copy()
+        return self._libros_prestados
 
     @property
     def cant_prestamos(self):
@@ -56,17 +58,29 @@ class Usuario(Persona):
     def cant_prestamos(self, cantidad):
         self._cant_prestamos = cantidad
 
+    @dni.setter
+    def dni(self, dn):
+        self._dni = dn
+
+    @nombre.setter
+    def nombre(self, nom):
+        self._nombre = nom
+
+    @apellidos.setter
+    def apellidos(self, apell):
+        self._apellidos = apell
+
     def registrar_prestamo(self, codigo_libro: int):
         if codigo_libro in self._libros_prestados:
             print("Ese libro ya está prestado por este usuario.")
             return
 
-        if len(self._libros_prestados) >= 3:
+        if len(self.libros_prestados) >= 3:
             print("Solo es máximo de 3 préstamos por usuario.")
             return
 
         self._libros_prestados.append(codigo_libro)
-        self._cant_prestamos += 1
+        self.cant_prestamos += 1
         print(f"Libro con codigo {codigo_libro} registrado correctamente.")
 
     def devolver_libro(self, codigo_libro: int, dias_mora: int = 0):
@@ -74,16 +88,16 @@ class Usuario(Persona):
         if codigo_libro in self._libros_prestados:
             self._libros_prestados.remove(codigo_libro)
             multa = dias_mora * 10
-            self._deuda += multa
+            self.deuda += multa
         else:
             print("ALERTA: Este libro no está registrado en sus préstamos.")
 
     def mostrar_info(self):
         """=====INFORMACION GENERAL DEL USUARIO====="""
-        print(f"DNI: {self._dni}")
-        print(f"Nombre: {self._nombre} {self._apellidos}")
-        print(f"Libros prestados actualmente: {len(self._libros_prestados)}")
-        print(f"Deuda: S/.{self._deuda}")
+        print(f"DNI: {self.dni}")
+        print(f"Nombre: {self.nombre} {self.apellidos}")
+        print(f"Libros prestados actualmente: {len(self.libros_prestados)}")
+        print(f"Deuda: S/.{self.deuda}")
 
 
 class Libro:
@@ -128,20 +142,40 @@ class Libro:
     def contador_pres(self, cont):
         self._contador_pres = cont
 
+    @codigo.setter
+    def codigo(self, cod):
+        self._codigo = cod
+
+    @titulo.setter
+    def titulo(self, lib):
+        self._titulo = lib
+
+    @autor.setter
+    def autor(self, aut):
+        self._autor = aut
+
+    @anio_pub.setter
+    def anio_pub(self, anio):
+        self._anio_pub = anio
+
+    @contador_pres.setter
+    def contador_pres(self, cont):
+        self._contador_pres = cont
+
     # metodos
     def prestar(
         self,
     ):
-        self._estado = "prestado"
-        self._contador_pres += 1
+        self.estado = "prestado"
+        self.contador_pres += 1
 
     def devolver(self):
-        self._estado = "disponible"
+        self.estado = "disponible"
 
     def mostrar_info(self):
         print(
-            f"{self._codigo:^10}{self._titulo:^30}",
-            f"{self._autor:^15}{self._anio_pub:^7}{self._estado:^12}",
+            f"{self.codigo:^10}{self.titulo:^30}",
+            f"{self.autor:^15}{self.anio_pub:^7}{self.estado:^12}",
             sep="",
         )
 
@@ -255,39 +289,51 @@ class Prestamo:
     def fecha_dev_real(self, fecha_real: tuple[int, int, int]):
         self._fecha_dev_real = fecha_real
 
+    @fecha_dev_estimada.setter
+    def fecha_dev_estimada(self, dev):
+        self._fecha_dev_estimada = dev
+
+    @multa.setter
+    def multa(self, mul):
+        self._multa = mul
+
+    @devuelto.setter
+    def devuelto(self, dev):
+        self._devuelto = dev
+
     def devolver(self, fecha_real: tuple[int, int, int]):
         if self._devuelto:
             print("Este préstamo ya fue devuelto.")
             return
 
-        self._libro.devolver()
-        self._fecha_dev_real = fecha_real
+        self.libro.devolver()
+        self.fecha_dev_real = fecha_real
 
         # Calcular mora
-        if self.f_penal_v(fecha_real, self._fecha_dev_estimada):
+        if self.f_penal_v(fecha_real, self.fecha_dev_estimada):
             dias_mora = self.cal_mora(fecha_real) - self.cal_mora(
-                self._fecha_dev_estimada
+                self.fecha_dev_estimada
             )
-            self._multa = dias_mora * 10
-            self._usuario.devolver_libro(self._libro.codigo, dias_mora)
+            self.multa = dias_mora * 10
+            self.usuario.devolver_libro(self.libro.codigo, dias_mora)
             print(
-                f"Libro '{self._libro.titulo}' devuelto con {dias_mora} días de retraso. Multa: S/.{self._multa}"
+                f"Libro '{self.libro.titulo}' devuelto con {dias_mora} días de retraso. Multa: S/.{self.multa}"
             )
         else:
-            self._usuario.devolver_libro(self._libro.codigo, 0)
-            print(f"Libro '{self._libro.titulo}' devuelto a tiempo. ¡Gracias!")
+            self._usuario.devolver_libro(self.libro.codigo, 0)
+            print(f"Libro '{self.libro.titulo}' devuelto a tiempo. ¡Gracias!")
 
-        self._devuelto = True
+        self.devuelto = True
 
     def mostrar_info(self):
         print("===== DETALLE DEL PRÉSTAMO =====")
-        print(f"Usuario: {self._usuario._nombre} {self._usuario._apellidos}")
-        print(f"Libro: {self._libro.titulo}")
-        print(f"Fecha de préstamo: {self._fecha_prestamo}")
-        print(f"Fecha estimada de devolución: {self._fecha_dev_estimada}")
-        if self._devuelto:
-            print(f"Fecha real de devolución: {self._fecha_dev_real}")
-            print(f"Multa: S/.{self._multa}")
+        print(f"Usuario: {self.usuario.nombre} {self.usuario.apellidos}")
+        print(f"Libro: {self.libro.titulo}")
+        print(f"Fecha de préstamo: {self.fecha_prestamo}")
+        print(f"Fecha estimada de devolución: {self.fecha_dev_estimada}")
+        if self.devuelto:
+            print(f"Fecha real de devolución: {self.fecha_dev_real}")
+            print(f"Multa: S/.{self.multa}")
         else:
             print("Estado: EN CURSO")
 
@@ -349,15 +395,15 @@ class Biblioteca:
 
     @property
     def usuarios(self) -> dict[int, Usuario]:
-        return self._usuarios.copy()
+        return self._usuarios
 
     @property
     def libros(self) -> dict[int, Libro]:
-        return self._libros.copy()
+        return self._libros
 
     @property
     def prestamos(self) -> list[Prestamo]:
-        return self._prestamos.copy()
+        return self._prestamos
 
     # agregacion de usuarios y comprobaciones
     def ver_nombre(self, n_evaluar):
@@ -444,7 +490,7 @@ class Biblioteca:
                 dni = int(input("Ingrese el dni (0 = salir): "))
                 if dni in self.usuarios:
                     print("DNI VALIDO:")
-                    if len(self.usuarios[dni]._libros_prestados) < 3:
+                    if len(self.usuarios[dni].libros_prestados) < 3:
                         print(
                             "CODIGO                NOMBRE                "
                             " AUTOR             AÑO             ESTADO",
@@ -469,15 +515,15 @@ class Biblioteca:
             print("Error de ingreso de datos")
 
     def registrar_prestamo(self, dni_usuario: int, codigo_libro: int):
-        if dni_usuario not in self._usuarios:
+        if dni_usuario not in self.usuarios:
             print("Usuario no encontrado.")
             return
-        if codigo_libro not in self._libros:
+        if codigo_libro not in self.libros:
             print("Libro no encontrado.")
             return
 
-        usuario = self._usuarios[dni_usuario]
-        libro = self._libros[codigo_libro]
+        usuario = self.usuarios[dni_usuario]
+        libro = self.libros[codigo_libro]
 
         if libro.estado != "disponible":
             print("El libro no está disponible actualmente.")
@@ -501,24 +547,24 @@ class Biblioteca:
 
         if self.fecha_valida(dia, mes, annio):
             prestamo = Prestamo(usuario, libro, fecha_prestamo)
-            self._prestamos.append(prestamo)
+            self.prestamos.append(prestamo)
             print(
-                f"Préstamo registrado: '{libro.titulo}' para {usuario._nombre} ({usuario._dni})"
+                f"Préstamo registrado: '{libro.titulo}' para {usuario.nombre} ({usuario.dni})"
             )
             print(f"Fecha estimada de devolución: {prestamo.fecha_dev_estimada}")
 
     # devoluciones
     def menu_devolucion(self):
         try:
-            while True and len(self._usuarios) > 0:
+            while True and len(self.usuarios) > 0:
                 print("Sistema de devolución de libros:")
                 dni = int(input("Ingrese el DNI del usuario (0 = salir): "))
 
                 if dni == 0:
                     break
 
-                if dni in self._usuarios.keys():
-                    usuario = self._usuarios[dni]
+                if dni in self.usuarios.keys():
+                    usuario = self.usuarios[dni]
 
                     if len(usuario.libros_prestados) == 0:
                         print("Este usuario no tiene libros prestados.")
@@ -529,7 +575,7 @@ class Biblioteca:
 
                     print("\nLibros actualmente prestados:")
                     for codigo in usuario.libros_prestados:
-                        self._libros[codigo].mostrar_info()
+                        self.libros[codigo].mostrar_info()
 
                     codigo_libro = int(
                         input("\nIngrese el código del libro a devolver: ")
@@ -541,7 +587,7 @@ class Biblioteca:
 
                     # Buscar préstamo activo
                     prestamo_activo = None
-                    for prest in self._prestamos:
+                    for prest in self.prestamos:
                         if (
                             prest.usuario.dni == dni
                             and prest.libro.codigo == codigo_libro
@@ -567,7 +613,9 @@ class Biblioteca:
                         break
 
                     # Validar que la devolución no sea antes del préstamo
-                    if not self.f_penal_v(fecha_real, prestamo_activo.fecha_prestamo):
+                    if self.cal_mora(fecha_real) < self.cal_mora(
+                        prestamo_activo.fecha_prestamo
+                    ):
                         print(
                             "ERROR: La fecha de devolución no puede ser anterior a la fecha de préstamo."
                         )
@@ -594,7 +642,7 @@ class Biblioteca:
     ):
         for prestamo in self._prestamos:
             if (
-                prestamo.usuario._dni == dni_usuario
+                prestamo.usuario.dni == dni_usuario
                 and prestamo.libro.codigo == codigo_libro
                 and not prestamo.devuelto
             ):
@@ -627,7 +675,7 @@ class Biblioteca:
                     dia_dev = int(input("Dia: "))
                     mes_dev = int(input("Mes: "))
                     annio_dev = int(input("Año: "))
-                    if self.fecha_valida(dia_actual, mes_actual, annio_actual):
+                    if self.fecha_valida(dia_dev, mes_dev, annio_dev):
                         break
                     else:
                         print("Fecha no valida")
@@ -723,7 +771,19 @@ class Biblioteca:
     |           |6.          REPORTE DE FECHAS DE PUBLICACIONES DE LIBROS           |           |
     |           ---------------------------------------------------------------------           |
     |           ---------------------------------------------------------------------           |
-    |           | 7.                       Regresar al menu                         |           |
+    |           |7.                  Libros nunca prestados                         |           |
+    |           ---------------------------------------------------------------------           |
+    |           ---------------------------------------------------------------------           |
+    |           |8.           Ranking Usuarios con menos préstamos                  |           |
+    |           ---------------------------------------------------------------------           |
+    |           ---------------------------------------------------------------------           |
+    |           |9.                TASA DE DEVOLUCIÓN TARDÍA POR MES                |           |
+    |           ---------------------------------------------------------------------           |
+    |           ---------------------------------------------------------------------           |
+    |           |10.               CANTIDAD DE LIBROS POR AUTOR                     |           |
+    |           ---------------------------------------------------------------------           |
+    |           ---------------------------------------------------------------------           |
+    |           |11.                       Regresar al menu                         |           |
     |           ---------------------------------------------------------------------           |
     +-------------------------------------------------------------------------------------------+
     """
@@ -737,34 +797,57 @@ class Biblioteca:
             self.libros.values(), key=obtener_prestamos, reverse=True
         )
         limite = 0
+        df = {"Titulo del libro": [], "Cantidad de Préstamos": []}
         for libro in libros_ordenados:
-            if limite >= 20:  # máximo 20 libros
+            if limite > 5:
                 break
-            libro.mostrar_info()
+            df["Titulo del libro"].append(libro.titulo)
+            df["Cantidad de Préstamos"].append(libro.contador_pres)
             limite += 1
+
+        dfreport = pd.DataFrame(df)
+
+        sns.barplot(
+            x="Titulo del libro",
+            y="Cantidad de Préstamos",
+            data=dfreport,
+            palette="viridis",
+        )
+        plt.title("TOP 5 LIBROS con MÁS prestamos", fontsize=14)
+        plt.xlabel("Titulo del libro", fontsize=12)
+        plt.ylabel("Cantidad de Préstamos", fontsize=12)
+        plt.show()
+        plt.close()
 
     def reporte2(self):
         def obtener_prestamos(persona: Usuario):
             return persona.cant_prestamos
 
-        personas_ordenadas = sorted(
+        usuarios_ordenados = sorted(
             self.usuarios.values(), key=obtener_prestamos, reverse=True
         )
         limite = 0
-        print(
-            f"{"dni":^10}{"nombre":^30}",
-            f"{"apellidos":^15}{"deuda":^7}{"cant_prestamos":^12}",
-            sep="",
-        )
-        for user in personas_ordenadas:
-            if limite >= 20:  # máximo 20 libros
+
+        df = {"Usuario": [], "Cantidad de prestamos": []}
+
+        for usuario in usuarios_ordenados:
+            if limite >= 5:  # máximo 5 libros
                 break
-            print(
-                f"{user.dni:^10}{user.nombre:^30}",
-                f"{user.apellidos:^15}{user.deuda:^7}{user.cant_prestamos:^12}",
-                sep="",
-            )
+
+            nombre_completo = f"{usuario.nombre} {usuario.apellidos}"
+            df["Usuario"].append(nombre_completo)
+            df["Cantidad de prestamos"].append(usuario.cant_prestamos)
             limite += 1
+
+        dfreport = pd.DataFrame(df)
+
+        sns.barplot(
+            x="Usuario", y="Cantidad de prestamos", data=dfreport, palette="viridis"
+        )
+
+        plt.title("TOP 5 Usuarios con MÁS prestamos", fontsize=14)
+        plt.show()
+        plt.close()
 
     def reporte3(self):
         print(
@@ -833,6 +916,8 @@ class Biblioteca:
 
             # Convertir fechas a días
             dias_inicio = prestamo.cal_mora(prestamo.fecha_prestamo)
+            if prestamo.fecha_dev_real is None:
+                continue
             dias_fin = prestamo.cal_mora(prestamo.fecha_dev_real)
 
             duracion = dias_fin - dias_inicio
@@ -847,6 +932,14 @@ class Biblioteca:
         promedio = total_dias / total_prestamos
 
         print(f"Tiempo promedio general de préstamo: {promedio:.2f} días")
+        lista1 = [promedio, total_dias]
+        lista2 = ["promedio", "Horas totales"]
+        plt.bar(lista2, lista1)
+        plt.xlabel("costos")
+        plt.ylabel("Recaudación")
+        plt.title("Compararción de promedio y total")
+        plt.show()
+        plt.close()
 
     def reporte4(self):
         print(
@@ -897,8 +990,13 @@ class Biblioteca:
         )
         deuda_total = 0
         limite = 0
+        listde = []
+        listu = []
         for i, user in self.usuarios.items():
             deuda_total += user.deuda
+            listu.append(user.nombre)
+            listde.append(user.deuda)
+
         print("_____________________________________" * 3)
         print(" " * 30, end="")
         print(f"Recaudación por penalidades: S/.{deuda_total}")
@@ -912,6 +1010,13 @@ class Biblioteca:
                 sep="",
             )
             limite += 1
+
+        plt.bar(listu, listde)
+        plt.xlabel("Usuarios")
+        plt.ylabel("Recaudación por penalidad")
+        plt.title("Recaudación por penalidades")
+        plt.show()
+        plt.close()
 
     def reporte5(self):
         try:
@@ -993,6 +1098,16 @@ class Biblioteca:
             print(
                 f"LIBROS PRESTADOS   : {int(aux_pres/len(self.libros)*100) * "*"}:{aux_pres/len(self.libros)*100:.2f}%"
             )
+            lista = [aux_dis, aux_pres]
+            nom = ["Disponible", "Prestado"]
+            colores = ["#32f54f", "#fa3f3f"]
+            desfase = [0, 0.01]
+            plt.pie(
+                lista, labels=nom, autopct="%0.1f%%", colors=colores, explode=desfase
+            )
+            plt.axis("equal")
+            plt.show()
+            plt.close()
         except ZeroDivisionError:
             print(" " * 20, end="")
             print("Datos no disponibles")
@@ -1064,22 +1179,174 @@ class Biblioteca:
 
             print("_____________________________________" * 3)
             print(" " * 20, end="")
-            print("               Recuento de Fechas de Publicacion")
+            print("               Recuento de Fechas de Publicación")
             print("_____________________________________" * 3)
             for clave, valor in recuentos.items():
                 print(f"Fecha => {clave}      | recuento => {valor}")
             print("_____________________________________" * 3)
-            input("Enter para continuar")
+            x = recuentos.keys()
+            y = recuentos.values()
+            plt.bar(x, y, width=0.9, color="#4B7DF3")
+            plt.xlabel("año de publicación")
+            plt.ylabel("cantidad")
+            plt.title("Recuento de fechas de fublicación")
+            plt.show()
+            plt.close()
         except ZeroDivisionError:
             print(" " * 20, end="")
             print("Datos no disponibles")
             print("_____________________________________" * 3)
             input("Enter para continuar")
 
+    def reporte7(self):
+        try:
+
+            def obt_contador(lib: Libro):
+                return lib.contador_pres
+
+            print("\n=== REPORTE 7: Libros nunca prestados ===")
+
+            if len(self.libros) == 0:
+                print("No hay libros registrados.")
+                return
+
+            libros_ordenados = sorted(self.libros.values(), key=obt_contador)
+
+            top = libros_ordenados[:10]
+
+            titulos = [lib.titulo for lib in top]
+            valores = [lib.contador_pres for lib in top]
+
+            print(f"\n{'Título del libro':40} | Préstamos")
+            print("-" * 60)
+            for t, v in zip(titulos, valores):
+                print(f"{t:40} | {v}")
+
+            plt.figure(figsize=(10, 5))
+            plt.bar(titulos, valores)
+            plt.title("Libros menos prestados (ranking)")
+            plt.xlabel("Título del libro")
+            plt.ylabel("Cantidad de préstamos")
+            plt.xticks(rotation=45, ha="right")
+            plt.tight_layout()
+            plt.show()
+            plt.close()
+        except TypeError:
+            print()
+
+    def reporte8(self):
+        def cant_pres(pres: Usuario):
+            return pres.cant_prestamos
+
+        print("\n=== REPORTE 8:  Ranking Usuarios con menos préstamos ===")
+
+        if len(self.usuarios) == 0:
+            print("No hay usuarios registrados.")
+            return
+
+        usuarios_ordenados = sorted(self.usuarios.values(), key=cant_pres)
+
+        top = usuarios_ordenados[:10]
+
+        nombres = [u.nombre + " " + u.apellidos for u in top]
+        valores = [u.cant_prestamos for u in top]
+
+        print(f"\n{'Usuario':40} | Préstamos")
+        print("-" * 55)
+        for n, v in zip(nombres, valores):
+            print(f"{n:40} | {v}")
+
+        plt.figure(figsize=(10, 5))
+        plt.bar(nombres, valores)
+        plt.title("Ranking de usuarios con menos préstamos")
+        plt.xlabel("Usuarios")
+        plt.ylabel("Cantidad de préstamos")
+        plt.xticks(rotation=45, ha="right")
+        plt.tight_layout()
+        plt.show()
+        plt.close()
+
+    def reporte9(self):
+        filas = []
+
+        for prestamo in self._prestamos:
+            if prestamo.devuelto:
+                dia, mes, anio = prestamo.fecha_dev_real
+                if prestamo.multa > 0:
+                    cont_tardio = 1
+                else:
+                    cont_tardio = 0
+                filas.append({"anio": anio, "mes": mes, "tardia": cont_tardio})
+
+        if not filas:
+            print("No hay préstamos devueltos para analizar.")
+            return
+
+        df = pd.DataFrame(filas)
+
+        estadisticas = {}
+
+        for i, fila in df.iterrows():
+            anio = fila["anio"]
+            mes = fila["mes"]
+            clave = f"{anio}-{mes:02d}"
+
+            if clave not in estadisticas:
+                estadisticas[clave] = {"devueltos": 0, "tardios": 0}
+
+            estadisticas[clave]["devueltos"] += 1
+            estadisticas[clave]["tardios"] += fila["tardia"]
+
+        meses = []
+        tasas = []
+
+        print("\n_____TASA DE DEVOLUCIÓN TARDÍA POR MES______")
+        for clave in sorted(estadisticas.keys()):
+            dev = estadisticas[clave]["devueltos"]
+            tard = estadisticas[clave]["tardios"]
+            tasa = (tard / dev) * 100
+
+            print(f"{clave}: {tasa:.2f}%")
+
+            meses.append(clave)
+            tasas.append(tasa)
+
+        plt.figure(figsize=(8, 4))
+        plt.plot(meses, tasas, marker="o")
+        plt.title("Tasa de devolución tardía por mes")
+        plt.xlabel("Mes")
+        plt.ylabel("Porcentaje (%)")
+        plt.grid(True)
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+        plt.close()
+
+    def reporte10(self):
+        autores = []
+        recuentos = dict()
+        for i, lib in self.libros.items():
+            autores.append(lib.autor)
+        for autor in autores:
+            recuentos[autor] = recuentos.get(autor, 0) + 1
+        limite = 1
+        df = {"Autor": [], "Contador": []}
+        for autor, contador in recuentos.items():
+            if limite > 4:
+                break
+            df["Autor"].append(autor)
+            df["Contador"].append(contador)
+            limite += 1
+        dfreport = pd.DataFrame(df)
+        sns.barplot(x="Autor", y="Contador", data=dfreport)
+        plt.show()
+        plt.close()
+
     def reportes(self):
         while True:
             self.menu_reportes()
             try:
+                plt.close()
                 usu_entrada = int(input("Eleccion del usuario:  "))
                 match usu_entrada:
                     case 1:
@@ -1097,173 +1364,205 @@ class Biblioteca:
                     case 6:
                         self.reporte6()
                     case 7:
+                        self.reporte7()
+                    case 8:
+                        self.reporte8()
+                    case 9:
+                        self.reporte9()
+                    case 10:
+                        self.reporte10()
+                    case 11:
                         break
             except ValueError:
                 print("ERROR : VALOR INGRESADO NO ES UN NUMERO")
 
     def guardar_archivo(self):
-        def guardar_usuarios():
-            filas = []
-            for dni, user in self._usuarios.items():
-                filas.append(
-                    [
-                        dni,
-                        user.nombre,
-                        user.apellidos,
-                        str(user.libros_prestados),
-                        user.deuda,
-                        user.cant_prestamos,
-                    ]
+        try:
+
+            def guardar_usuarios():
+                filas = []
+                for dni, user in self._usuarios.items():
+                    filas.append(
+                        [
+                            dni,
+                            user.nombre,
+                            user.apellidos,
+                            str(user.libros_prestados),
+                            user.deuda,
+                            user.cant_prestamos,
+                        ]
+                    )
+
+                df = pd.DataFrame(
+                    filas,
+                    columns=[
+                        "DNI",
+                        "Nombre",
+                        "Apellido",
+                        "Libros prestados",
+                        "Deuda",
+                        "Cantidad de prestamos",
+                    ],
                 )
+                df.to_csv("usuarios.csv", index=False)
 
-            df = pd.DataFrame(
-                filas,
-                columns=[
-                    "DNI",
-                    "Nombre",
-                    "Apellido",
-                    "Libros prestados",
-                    "Deuda",
-                    "Cantidad de prestamos",
-                ],
-            )
-            df.to_csv("usuarios.csv", index=False)
+            def guardar_libros():
+                filas = []
+                for codigo, libro in self._libros.items():
+                    filas.append(
+                        [
+                            codigo,
+                            libro.titulo,
+                            libro.autor,
+                            libro.anio_pub,
+                            libro.estado,
+                            libro.contador_pres,
+                        ]
+                    )
 
-        def guardar_libros():
-            filas = []
-            for codigo, libro in self._libros.items():
-                filas.append(
-                    [
-                        codigo,
-                        libro.titulo,
-                        libro.autor,
-                        libro.anio_pub,
-                        libro.estado,
-                        libro.contador_pres,
-                    ]
+                df = pd.DataFrame(
+                    filas,
+                    columns=[
+                        "Codigo",
+                        "Nombre",
+                        "Autor",
+                        "Año de publicacion",
+                        "Estado",
+                        "Contador de prestamos",
+                    ],
                 )
+                df.to_csv("libros.csv", index=False)
 
-            df = pd.DataFrame(
-                filas,
-                columns=[
-                    "Codigo",
-                    "Nombre",
-                    "Autor",
-                    "Año de publicacion",
-                    "Estado",
-                    "Contador de prestamos",
-                ],
-            )
-            df.to_csv("libros.csv", index=False)
+            def guardar_prestamos():
+                filas = []
+                for prest in self._prestamos:
+                    filas.append(
+                        [
+                            prest.usuario.dni,
+                            prest.libro.codigo,
+                            str(prest.fecha_prestamo),
+                            str(prest.fecha_dev_estimada),
+                            str(prest.fecha_dev_real),
+                            prest.devuelto,
+                            prest.multa,
+                        ]
+                    )
 
-        def guardar_prestamos():
-            filas = []
-            for prest in self._prestamos:
-                filas.append(
-                    [
-                        prest.usuario.dni,
-                        prest.libro.codigo,
-                        str(prest.fecha_prestamo),
-                        str(prest.fecha_dev_estimada),
-                        str(prest.fecha_dev_real),
-                        prest.devuelto,
-                    ]
+                df = pd.DataFrame(
+                    filas,
+                    columns=[
+                        "DNI",
+                        "Codigo",
+                        "Fecha prestamo",
+                        "Fecha estimada",
+                        "Fecha real",
+                        "Devuelto",
+                        "Multa",
+                    ],
                 )
+                df.to_csv("prestamos.csv", index=False)
 
-            df = pd.DataFrame(
-                filas,
-                columns=[
-                    "DNI",
-                    "Codigo",
-                    "Fecha prestamo",
-                    "Fecha estimada",
-                    "Fecha real",
-                    "Devuelto",
-                ],
-            )
-            df.to_csv("prestamos.csv", index=False)
-
-        guardar_usuarios()
-        guardar_libros()
-        guardar_prestamos()
-        print("Datos guardados correctamente en CSV.")
+            guardar_usuarios()
+            guardar_libros()
+            guardar_prestamos()
+            print("Datos guardados correctamente en CSV.")
+        except FileNotFoundError:
+            print("Archivo no encontrado")
 
     def cargar_archivo(self):
-        def str_a_tupla(texto):
-            texto = texto.replace("(", "").replace(")", "")
-            partes = texto.split(",")
-            if len(partes) != 3:
-                return None
-            return (int(partes[0]), int(partes[1]), int(partes[2]))
+        try:
 
-        def cargar_usuarios():
-            df = pd.read_csv("usuarios.csv")
-            for i in df.index:
-                dni = int(df.loc[i, "DNI"])
-                nom = df.loc[i, "Nombre"]
-                ape = df.loc[i, "Apellido"]
+            def str_a_tupla(texto):
+                texto = texto.replace("(", "").replace(")", "")
+                partes = texto.split(",")
+                if len(partes) != 3:
+                    return None
+                return (int(partes[0]), int(partes[1]), int(partes[2]))
 
-                user = Usuario(dni, nom, ape)
+            def cargar_usuarios():
+                df = pd.read_csv("usuarios.csv")
+                for i in df.index:
+                    dni = int(df.loc[i, "DNI"])
+                    nom = df.loc[i, "Nombre"]
+                    ape = df.loc[i, "Apellido"]
 
-                lista = df.loc[i, "Libros prestados"]
-                lista = lista.replace("[", "").replace("]", "").strip()
+                    user = Usuario(dni, nom, ape)
 
-                codigos = []
-                if lista != "":
-                    partes = lista.split(",")
-                    for p in partes:
-                        codigos.append(int(p))
+                    lista = df.loc[i, "Libros prestados"]
+                    lista = lista.replace("[", "").replace("]", "").strip()
 
-                user._libros_prestados = codigos
-                user._deuda = int(df.loc[i, "Deuda"])
-                user._cant_prestamos = int(df.loc[i, "Cantidad de prestamos"])
+                    codigos = []
+                    if lista != "":
+                        partes = lista.split(",")
+                        for p in partes:
+                            codigos.append(int(p))
 
-                self._usuarios[dni] = user
+                    user.libros_prestados = codigos
+                    user.deuda = int(df.loc[i, "Deuda"])
+                    user.cant_prestamos = int(df.loc[i, "Cantidad de prestamos"])
 
-        def cargar_libros():
-            df = pd.read_csv("libros.csv")
-            for i in df.index:
-                codigo = int(df.loc[i, "Codigo"])
-                libro = Libro(
-                    codigo,
-                    df.loc[i, "Nombre"],
-                    df.loc[i, "Autor"],
-                    int(df.loc[i, "Año de publicacion"]),
-                )
-                libro.estado = df.loc[i, "Estado"]
-                libro.contador_pres = int(df.loc[i, "Contador de prestamos"])
-                self._libros[codigo] = libro
+                    self.usuarios[dni] = user
 
-        def cargar_prestamos():
-            df = pd.read_csv("prestamos.csv")
-            for i in df.index:
-                dni = int(df.loc[i, "DNI"])
-                codigo = int(df.loc[i, "Codigo"])
+            def cargar_libros():
+                df = pd.read_csv("libros.csv")
+                for i in df.index:
+                    codigo = int(df.loc[i, "Codigo"])
+                    libro = Libro(
+                        codigo,
+                        df.loc[i, "Nombre"],
+                        df.loc[i, "Autor"],
+                        int(df.loc[i, "Año de publicacion"]),
+                    )
+                    libro.estado = df.loc[i, "Estado"]
+                    libro.contador_pres = int(df.loc[i, "Contador de prestamos"])
+                    self.libros[codigo] = libro
 
-                user = self._usuarios[dni]
-                libro = self._libros[codigo]
+            def cargar_prestamos():
+                df = pd.read_csv("prestamos.csv")
+                for i in df.index:
+                    dni = int(df.loc[i, "DNI"])
+                    codigo = int(df.loc[i, "Codigo"])
+                    user = self.usuarios[dni]
+                    libro = self.libros[codigo]
 
-                f_p = str_a_tupla(df.loc[i, "Fecha prestamo"])
-                prest = Prestamo(user, libro, f_p)
-                print(df.loc[i, "Fecha estimada"])
-                prest._fecha_dev_estimada = str_a_tupla(df.loc[i, "Fecha estimada"])
+                    f_p = str_a_tupla(df.loc[i, "Fecha prestamo"])
+                    prest = Prestamo(user, libro, f_p)
 
-                real = df.loc[i, "Fecha real"]
-                real = str(real)
-                if real != "None":
-                    prest._fecha_dev_real = str_a_tupla(real)
+                    prest.fecha_dev_estimada = str_a_tupla(df.loc[i, "Fecha estimada"])
 
-                prest._devuelto = bool(df.loc[i, "Devuelto"])
+                    real = str(df.loc[i, "Fecha real"])
+                    if real != "None":
+                        prest.fecha_dev_real = str_a_tupla(real)
 
-                self._prestamos.append(prest)
+                    multa = int(df.loc[i, "Multa"])
+                    prest.multa = multa
 
-        cargar_usuarios()
-        cargar_libros()
-        cargar_prestamos()
-        print("Datos cargados correctamente desde CSV.")
+                    devuelto_bool = bool(df.loc[i, "Devuelto"])
+                    prest.devuelto = devuelto_bool
+
+                    if devuelto_bool:
+                        libro.estado = "disponible"
+
+                        if libro.codigo in user.libros_prestados:
+                            user.libros_prestados.remove(libro.codigo)
+
+                        if libro.contador_pres > 0:
+                            libro.contador_pres -= 1
+                        if user.cant_prestamos > 0:
+                            user.cant_prestamos -= 1
+
+                    self.prestamos.append(prest)
+
+            cargar_usuarios()
+            cargar_libros()
+            cargar_prestamos()
+            print("Datos cargados correctamente desde CSV.")
+        except FileNotFoundError:
+            print("Archivo no encontrado")
 
 
 def main():
+
     biblioteca = Biblioteca()
 
     while True:
